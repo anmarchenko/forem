@@ -17,6 +17,7 @@ RSpec.describe ReleasePhaseNotifier, type: :lib do
       allow(mock_slack).to receive(:ping)
 
       described_class.ping_slack
+
       expect(mock_slack).to have_received(:ping).with(failure_message)
     end
 
