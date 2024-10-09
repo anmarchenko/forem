@@ -13,6 +13,7 @@ RSpec.describe ReleasePhaseNotifier, type: :lib do
       mock_slack = Slack::Notifier.new("url")
       failure_message = "Release Phase Failed: #{ENV.fetch('FAILED_COMMAND', nil)}"
       allow(Slack::Notifier).to receive(:new) { mock_slack }
+
       allow(mock_slack).to receive(:ping)
 
       described_class.ping_slack
