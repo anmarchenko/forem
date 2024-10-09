@@ -10,6 +10,7 @@ RSpec.describe "Fastly tasks", type: :task do
   describe "#update_configs" do
     it "doesn't run if Fastly isn't configured" do
       allow(ApplicationConfig).to receive(:[]).with("FASTLY_API_KEY").and_return(nil)
+
       allow(ApplicationConfig).to receive(:[]).with("FASTLY_SERVICE_ID").and_return(nil)
 
       Rake::Task["fastly:update_configs"].invoke
