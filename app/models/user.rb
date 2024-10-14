@@ -9,8 +9,10 @@ class User < ApplicationRecord
 
   # NOTE: we are using an inline module to keep profile related things together.
   concerning :Profiles do
+
     included do
       has_one :profile, dependent: :delete
+
 
       # NOTE: There are rare cases were we want to skip this callback, primarily
       # in tests. `skip_callback` modifies global state, which is not thread-safe
