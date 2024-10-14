@@ -9,10 +9,8 @@ class User < ApplicationRecord
 
   # NOTE: we are using an inline module to keep profile related things together.
   concerning :Profiles do
-
     included do
       has_one :profile, dependent: :delete
-
 
       # NOTE: There are rare cases were we want to skip this callback, primarily
       # in tests. `skip_callback` modifies global state, which is not thread-safe
@@ -44,6 +42,7 @@ class User < ApplicationRecord
   acts_as_follower
 
   has_one :notification_setting, class_name: "Users::NotificationSetting", dependent: :delete
+
   has_one :setting, class_name: "Users::Setting", dependent: :delete
 
   has_many :affected_feedback_messages, class_name: "FeedbackMessage",
