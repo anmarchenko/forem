@@ -10,6 +10,7 @@ RSpec.describe Slack::WorkflowWebhook, type: :service do
     allow(HTTParty).to receive(:post).and_call_original
 
     described_class.call("test")
+
     expect(HTTParty).not_to have_received(:post)
   end
 
