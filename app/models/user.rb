@@ -39,6 +39,7 @@ class User < ApplicationRecord
                 :current_password, :custom_invite_subject, :custom_invite_message, :custom_invite_footnote
 
   acts_as_followable
+
   acts_as_follower
 
   has_one :notification_setting, class_name: "Users::NotificationSetting", dependent: :delete
