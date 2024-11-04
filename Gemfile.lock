@@ -1,12 +1,12 @@
 GIT
   remote: https://github.com/DataDog/dd-trace-rb.git
-  revision: c893523afea5fee7f6a043d3bfffbcf82c1fcc7f
+  revision: 51446c78274b7fb47170bcca3b05b870f5c9d85c
   ref: master
   specs:
-    datadog (2.3.0)
-      debase-ruby_core_source (= 3.3.1)
-      libdatadog (~> 12.0.0.1.0)
-      libddwaf (~> 1.14.0.0.0)
+    datadog (2.4.0)
+      datadog-ruby_core_source (~> 3.3)
+      libdatadog (~> 13.1.0.1.0)
+      libddwaf (~> 1.15.0.0.0)
       msgpack
 
 GIT
@@ -20,8 +20,8 @@ GIT
 PATH
   remote: ../../p/datadog-ci-rb
   specs:
-    datadog-ci (1.7.0)
-      datadog (~> 2.3)
+    datadog-ci (1.8.1)
+      datadog (~> 2.4)
       msgpack
 
 GEM
@@ -216,9 +216,9 @@ GEM
       puma (>= 3.8.0)
       railties (>= 5.2.0)
     dante (0.2.0)
+    datadog-ruby_core_source (3.3.6)
     date (3.3.4)
     dead_end (4.0.0)
-    debase-ruby_core_source (3.3.1)
     debug (1.9.2)
       irb (~> 1.10)
       reline (>= 0.3.8)
@@ -313,7 +313,10 @@ GEM
       concurrent-ruby (~> 1.1)
       webrick (~> 1.8.2)
       websocket-driver (>= 0.6, < 0.8)
-    ffi (1.16.3)
+    ffi (1.17.0)
+    ffi (1.17.0-arm64-darwin)
+    ffi (1.17.0-x86_64-darwin)
+    ffi (1.17.0-x86_64-linux-gnu)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
@@ -484,15 +487,15 @@ GEM
     language_server-protocol (3.17.0.3)
     launchy (2.5.2)
       addressable (~> 2.8)
-    libdatadog (12.0.0.1.0)
-    libdatadog (12.0.0.1.0-x86_64-linux)
-    libddwaf (1.14.0.0.0)
+    libdatadog (13.1.0.1.0)
+    libdatadog (13.1.0.1.0-x86_64-linux)
+    libddwaf (1.15.0.0.0)
       ffi (~> 1.0)
-    libddwaf (1.14.0.0.0-arm64-darwin)
+    libddwaf (1.15.0.0.0-arm64-darwin)
       ffi (~> 1.0)
-    libddwaf (1.14.0.0.0-x86_64-darwin)
+    libddwaf (1.15.0.0.0-x86_64-darwin)
       ffi (~> 1.0)
-    libddwaf (1.14.0.0.0-x86_64-linux)
+    libddwaf (1.15.0.0.0-x86_64-linux)
       ffi (~> 1.0)
     libhoney (2.2.0)
       addressable (~> 2.0)
@@ -543,7 +546,7 @@ GEM
       connection_pool (>= 2)
       msgpack (>= 0.5)
       redis (>= 3.0)
-    msgpack (1.7.2)
+    msgpack (1.7.3)
     multi_json (1.15.0)
     multi_xml (0.7.1)
       bigdecimal (~> 3.1)
