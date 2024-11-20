@@ -31,7 +31,6 @@ class Article < ApplicationRecord
   # TODO: [@lightalloy] remove published_at validation from the model and
   # move it to the services where the create/update takes place to avoid using hacks
   attr_accessor :publish_under_org, :admin_update
-
   attr_writer :series
 
   delegate :name, to: :user, prefix: true
