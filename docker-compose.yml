@@ -106,90 +106,6 @@ services:
       test: pg_isready -U postgres -h 127.0.0.1
       interval: 5s
 
-  postgres-0:
-    image: postgres:13
-    volumes:
-      - postgres-0:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "54320:5432"
-    healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
-      interval: 5s
-
-  postgres-1:
-    image: postgres:13
-    volumes:
-      - postgres-1:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "54321:5432"
-    healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
-      interval: 5s
-
-  postgres-2:
-    image: postgres:13
-    volumes:
-      - postgres-2:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "54322:5432"
-    healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
-      interval: 5s
-
-  postgres-4:
-    image: postgres:13
-    volumes:
-      - postgres-4:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "54324:5432"
-    healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
-      interval: 5s
-
-  postgres-5:
-    image: postgres:13
-    volumes:
-      - postgres-5:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "54325:5432"
-    healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
-      interval: 5s
-
-  postgres-6:
-    image: postgres:13
-    volumes:
-      - postgres-6:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "54326:5432"
-    healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
-      interval: 5s
-
-  postgres-7:
-    image: postgres:13
-    volumes:
-      - postgres-7:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "54327:5432"
-    healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
-      interval: 5s
-
   redis:
     image: redis:7.0-alpine
     volumes:
@@ -241,13 +157,6 @@ volumes:
   history:
   rails_cache:
   postgres:
-  postgres-0:
-  postgres-1:
-  postgres-2:
-  postgres-4:
-  postgres-5:
-  postgres-6:
-  postgres-7:
   redis:
   assets:
   builds:
