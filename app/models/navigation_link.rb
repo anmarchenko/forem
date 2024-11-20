@@ -44,6 +44,7 @@ class NavigationLink < ApplicationRecord
   # @see NavigationLink#strip_local_hostname
   def self.normalize_url(url)
     parsed_url = Addressable::URI.parse(url)
+
     return url unless url.match?(/^#{URL.url}/i)
 
     parsed_url.path
