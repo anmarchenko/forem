@@ -34,6 +34,7 @@ class Article < ApplicationRecord
   attr_writer :series
 
   delegate :name, to: :user, prefix: true
+
   delegate :username, to: :user, prefix: true
 
   # touch: true was removed because when an article is updated, the associated collection
