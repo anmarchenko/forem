@@ -56,6 +56,7 @@ class NavigationLink < ApplicationRecord
   # still going through the normal validation process.
   def allow_relative_url
     parsed_url = Addressable::URI.parse(url)
+
     return unless parsed_url.relative? && url.starts_with?("/")
 
     self.url = Addressable::URI.parse(URL.url).join(parsed_url).to_s
