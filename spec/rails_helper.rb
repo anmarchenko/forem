@@ -14,15 +14,6 @@ KnapsackPro::Hooks::Queue.before_queue do |_queue_id|
 end
 
 require "spec_helper"
-require "datadog/ci"
-
-if ENV["DD_ENV"] == "ci"
-  Datadog.configure do |c|
-    c.service = "forem"
-    c.ci.enabled = true
-    c.ci.instrument :rspec
-  end
-end
 
 require File.expand_path("../config/environment", __dir__)
 require "rspec/rails"
