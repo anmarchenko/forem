@@ -20,8 +20,9 @@ GIT
 PATH
   remote: ../../p/datadog-ci-rb
   specs:
-    datadog-ci (1.8.1)
+    datadog-ci (1.19.0)
       datadog (~> 2.4)
+      drb
       msgpack
 
 GEM
@@ -252,6 +253,7 @@ GEM
     dotenv-rails (2.8.1)
       dotenv (= 2.8.1)
       railties (>= 3.2)
+    drb (2.2.3)
     e2mmap (0.1.0)
     easy_translate (0.5.1)
       thread
