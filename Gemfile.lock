@@ -1,12 +1,13 @@
 GIT
   remote: https://github.com/DataDog/dd-trace-rb.git
-  revision: 51446c78274b7fb47170bcca3b05b870f5c9d85c
+  revision: 54a7359a2c8504ca9248673a5209c1ac631b7c0e
   ref: master
   specs:
-    datadog (2.4.0)
-      datadog-ruby_core_source (~> 3.3)
-      libdatadog (~> 13.1.0.1.0)
-      libddwaf (~> 1.15.0.0.0)
+    datadog (2.17.0)
+      datadog-ruby_core_source (~> 3.4, >= 3.4.1)
+      libdatadog (~> 18.1.0.1.0)
+      libddwaf (~> 1.22.0.0.2)
+      logger
       msgpack
 
 GIT
@@ -217,7 +218,7 @@ GEM
       puma (>= 3.8.0)
       railties (>= 5.2.0)
     dante (0.2.0)
-    datadog-ruby_core_source (3.3.6)
+    datadog-ruby_core_source (3.4.1)
     date (3.3.4)
     dead_end (4.0.0)
     debug (1.9.2)
@@ -315,10 +316,10 @@ GEM
       concurrent-ruby (~> 1.1)
       webrick (~> 1.8.2)
       websocket-driver (>= 0.6, < 0.8)
-    ffi (1.17.0)
-    ffi (1.17.0-arm64-darwin)
-    ffi (1.17.0-x86_64-darwin)
-    ffi (1.17.0-x86_64-linux-gnu)
+    ffi (1.17.2)
+    ffi (1.17.2-arm64-darwin)
+    ffi (1.17.2-x86_64-darwin)
+    ffi (1.17.2-x86_64-linux-gnu)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
@@ -489,15 +490,15 @@ GEM
     language_server-protocol (3.17.0.3)
     launchy (2.5.2)
       addressable (~> 2.8)
-    libdatadog (13.1.0.1.0)
-    libdatadog (13.1.0.1.0-x86_64-linux)
-    libddwaf (1.15.0.0.0)
+    libdatadog (18.1.0.1.0)
+    libdatadog (18.1.0.1.0-x86_64-linux)
+    libddwaf (1.22.0.0.2)
       ffi (~> 1.0)
-    libddwaf (1.15.0.0.0-arm64-darwin)
+    libddwaf (1.22.0.0.2-arm64-darwin)
       ffi (~> 1.0)
-    libddwaf (1.15.0.0.0-x86_64-darwin)
+    libddwaf (1.22.0.0.2-x86_64-darwin)
       ffi (~> 1.0)
-    libddwaf (1.15.0.0.0-x86_64-linux)
+    libddwaf (1.22.0.0.2-x86_64-linux)
       ffi (~> 1.0)
     libhoney (2.2.0)
       addressable (~> 2.0)
@@ -507,6 +508,7 @@ GEM
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
+    logger (1.7.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -548,7 +550,7 @@ GEM
       connection_pool (>= 2)
       msgpack (>= 0.5)
       redis (>= 3.0)
-    msgpack (1.7.3)
+    msgpack (1.8.0)
     multi_json (1.15.0)
     multi_xml (0.7.1)
       bigdecimal (~> 3.1)
