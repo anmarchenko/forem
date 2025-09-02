@@ -11,6 +11,7 @@ module Notifications
         org.notifications.unread.update_all(read: true)
       end
 
+
       render plain: "read"
     end
   end
