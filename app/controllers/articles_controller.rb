@@ -13,6 +13,8 @@ class ArticlesController < ApplicationController
   before_action :set_cache_control_headers, only: %i[feed]
   after_action :verify_authorized
 
+
+
   #              I still want to enable this, but first want to get things mostly conformant with
   #              existing expectations.  Note, in config/application.rb, we're rescuing the below
   #              exception as though it was a Pundit::NotAuthorizedError.
