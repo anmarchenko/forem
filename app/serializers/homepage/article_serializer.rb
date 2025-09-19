@@ -34,6 +34,8 @@ module Homepage
     attribute :comments_count, (lambda do |article|
       article.displayed_comments_count? ? article.displayed_comments_count : article.comments_count
     end)
+
+
     attribute :video_duration_string, &:video_duration_in_minutes
     attribute :published_at_int, ->(article) { article.published_at.to_i }
     attribute :tag_list, ->(article) { article.cached_tag_list.to_s.split(", ") }
