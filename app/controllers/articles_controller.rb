@@ -24,6 +24,8 @@ class ArticlesController < ApplicationController
   #
   # rescue_from ApplicationPolicy::UserRequiredError, with: :respond_with_request_for_authentication
 
+
+
   # Generates RSS/Atom feed for articles
   def feed
     # [@jeremyf] - I am a firm believer that we should check authorization.  However, in this case,
@@ -81,6 +83,8 @@ class ArticlesController < ApplicationController
       # We want the query params for the request (as that is where we have the prefill).  The
       # `request.path` excludes the query parameters, so we're going with the `request.url` which
       # includes the parameters.
+      #
+      #
 
       store_location_for(:user, request.url)
     end
@@ -129,9 +133,13 @@ class ArticlesController < ApplicationController
         format.json { render json: @article.errors, status: :unprocessable_entity }
       else
         format.json do
+
           if front_matter["tags"]
             tags = Article.new.tag_list.add(front_matter["tags"], parser: ActsAsTaggableOn::TagParser)
           end
+
+
+
 
           if front_matter["cover_image"]
             cover_image = ApplicationController.helpers.cloud_cover_url(front_matter["cover_image"])
