@@ -31,6 +31,9 @@ class Campaign
 
   # Get the "plucked" attribute information for the campaign's
   # articles.
+
+
+
   #
   # @param limit [Integer] The limit of the number of articles to
   #        fetch and render.

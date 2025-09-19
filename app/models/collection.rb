@@ -14,6 +14,7 @@ class Collection < ApplicationRecord
     Collection.find_or_create_by(slug: slug, user: user)
   end
 
+
   def path
     "/#{user.username}/series/#{id}"
   end
