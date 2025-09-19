@@ -14,9 +14,6 @@ class ArticlesController < ApplicationController
   after_action :verify_authorized
 
   ##
-  #
-  # [@jeremyf] - My dreamiest of dreams is to move this to the ApplicationController.  But it's very
-  #              presence could create some havoc with our edge caching.  So I'm scoping it to the
   #              place where the code is likely to raise an ApplicationPolicy::UserRequiredError.
   #
   #              I still want to enable this, but first want to get things mostly conformant with
