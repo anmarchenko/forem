@@ -16,8 +16,6 @@ class Broadcast < ApplicationRecord
 
   scope :announcement, -> { where(type_of: "Announcement") }
 
-
-
   scope :welcome, -> { where(type_of: "Welcome") }
 
   def get_inner_body(content)
