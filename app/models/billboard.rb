@@ -13,6 +13,8 @@ class Billboard < ApplicationRecord
                                sidebar_right_third
                                feed_first
                                feed_second
+
+
                                feed_third
                                home_hero
                                footer
