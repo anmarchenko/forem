@@ -73,7 +73,7 @@ jobs:
           api_key: ${{ secrets.DD_API_KEY }}
           site: datadoghq.eu
       - name: Setup Datadog Test Runner
-        run: bin/ddruntest setup
+        run: bin/ddtest plan
         env:
           DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM: 1
           DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
@@ -143,6 +143,6 @@ jobs:
           api_key: ${{ secrets.DD_API_KEY }}
           site: datadoghq.eu
       - name: RSpec
-        run: bin/ddruntest run
+        run: bin/ddtest run
         env:
           DD_TEST_SESSION_NAME: test-runner-${{ matrix.ci_node_index }}

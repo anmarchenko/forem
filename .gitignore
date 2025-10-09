@@ -133,5 +133,5 @@ test.rb
 test-runner.rb
 test-runner-knapsack.rb
 *.log
-.dd
+.testoptimization
 knapsack-test-files.txt
