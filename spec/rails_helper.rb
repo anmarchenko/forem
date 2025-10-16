@@ -1,26 +1,16 @@
 ENV["RAILS_ENV"] = "test"
 # Temporary workaround for Ruby 3.0.6 / CGI udpate
 ENV["APP_DOMAIN"] = "forem.test"
-require "knapsack_pro"
+
 require "simplecov"
 require "simplecov_json_formatter"
 
 if ENV["CI"]
   SimpleCov.formatter = SimpleCov::Formatter::JSONFormatter
 end
-KnapsackPro::Adapters::RSpecAdapter.bind
-KnapsackPro::Hooks::Queue.before_queue do |_queue_id|
-  SimpleCov.command_name("rspec_ci_node_#{KnapsackPro::Config::Env.ci_node_index}")
-end
 
 TMP_RSPEC_XML_REPORT = "tmp/rspec.xml".freeze
 FINAL_RSPEC_XML_REPORT = "tmp/rspec_final_results.xml".freeze
-
-KnapsackPro::Hooks::Queue.after_subset_queue do |_queue_id, _subset_queue_id|
-  if File.exist?(TMP_RSPEC_XML_REPORT)
-    FileUtils.mv(TMP_RSPEC_XML_REPORT, FINAL_RSPEC_XML_REPORT)
-  end
-end
 
 require "spec_helper"
 
@@ -75,7 +65,6 @@ allowed_sites = [
   "github.com/mozilla/geckodriver/releases",
   "selenium-release.storage.googleapis.com",
   "developer.microsoft.com/en-us/microsoft-edge/tools/webdriver",
-  "api.knapsackpro.com",
   ENV.fetch("CHROME_URL", nil),
 ]
 WebMock.disable_net_connect!(allow_localhost: true, allow: allowed_sites)
