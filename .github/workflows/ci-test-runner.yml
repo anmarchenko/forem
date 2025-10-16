@@ -72,6 +72,11 @@ jobs:
           languages: ruby
           api_key: ${{ secrets.DD_API_KEY }}
           site: datadoghq.eu
+      - name: Download ddtest binary
+        run: |
+          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/DataDog/ddtest/releases | jq -r 'first | .assets[] | select(.name == "ddtest-linux-amd64") | .browser_download_url')
+          curl -L -o bin/ddtest "$DOWNLOAD_URL"
+          chmod +x bin/ddtest
       - name: Setup Datadog Test Runner
         run: bin/ddtest plan
         env:
@@ -142,6 +147,11 @@ jobs:
           languages: ruby
           api_key: ${{ secrets.DD_API_KEY }}
           site: datadoghq.eu
+      - name: Download ddtest binary
+        run: |
+          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/DataDog/ddtest/releases | jq -r 'first | .assets[] | select(.name == "ddtest-linux-amd64") | .browser_download_url')
+          curl -L -o bin/ddtest "$DOWNLOAD_URL"
+          chmod +x bin/ddtest
       - name: RSpec
         run: bin/ddtest run
         env:
