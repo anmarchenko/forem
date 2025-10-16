@@ -74,9 +74,12 @@ jobs:
           site: datadoghq.eu
       - name: Download ddtest binary
         run: |
-          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/DataDog/ddtest/releases | jq -r 'first | .assets[] | select(.name == "ddtest-linux-amd64") | .browser_download_url')
-          curl -L -o bin/ddtest "$DOWNLOAD_URL"
+          LATEST_PRERELEASE_TAG=$(gh release list --repo DataDog/ddtest --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | head -n 1)
+          gh release download "$LATEST_PRERELEASE_TAG" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
+          mv bin/ddtest-linux-amd64 bin/ddtest
           chmod +x bin/ddtest
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Setup Datadog Test Runner
         run: bin/ddtest plan
         env:
@@ -149,9 +152,12 @@ jobs:
           site: datadoghq.eu
       - name: Download ddtest binary
         run: |
-          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/DataDog/ddtest/releases | jq -r 'first | .assets[] | select(.name == "ddtest-linux-amd64") | .browser_download_url')
-          curl -L -o bin/ddtest "$DOWNLOAD_URL"
+          LATEST_PRERELEASE_TAG=$(gh release list --repo DataDog/ddtest --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | head -n 1)
+          gh release download "$LATEST_PRERELEASE_TAG" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
+          mv bin/ddtest-linux-amd64 bin/ddtest
           chmod +x bin/ddtest
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: RSpec
         run: bin/ddtest run
         env:
