@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/DataDog/datadog-ci-rb.git
-  revision: 9792c7d1a5dc907c03db2c90f7c74c80e7c867dc
-  ref: anmarchenko/improve_test_discovery
+  revision: 9d54a15e2ae1629343d1be274185fe47ec0e50d5
+  ref: main
   specs:
     datadog-ci (1.23.1)
       datadog (~> 2.4)
