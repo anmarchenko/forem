@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/DataDog/datadog-ci-rb.git
-  revision: 9d54a15e2ae1629343d1be274185fe47ec0e50d5
+  revision: 527573efc4bdd8dfda5482362474140b8ce38058
   ref: main
   specs:
     datadog-ci (1.23.1)

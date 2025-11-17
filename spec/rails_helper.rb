@@ -55,7 +55,7 @@ Dir[Rails.root.join("spec/policies/shared_examples/**/*.rb")].each { |f| require
 
 # Checks for pending migrations before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
-ActiveRecord::Migration.maintain_test_schema!
+ActiveRecord::Migration.maintain_test_schema! unless ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"]
 
 # Disable internet connection with Webmock
 # allow browser websites, so that "webdrivers" can access their binaries
@@ -80,8 +80,13 @@ Rack::Attack.enabled = false
 Browser::Bot.matchers.delete(Browser::Bot::EmptyUserAgentMatcher)
 
 RSpec.configure do |config|
-  config.use_transactional_fixtures = true
-  config.fixture_path = Rails.root.join("spec/fixtures")
+  unless ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"]
+    config.use_transactional_fixtures = true
+    config.fixture_path = Rails.root.join("spec/fixtures")
+  else
+    config.use_transactional_fixtures = false
+    config.use_active_record = false
+  end
 
   config.include ActionMailer::TestHelper
   config.include ApplicationHelper
