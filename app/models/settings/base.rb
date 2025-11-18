@@ -154,6 +154,8 @@ module Settings
       end
 
       def all_settings
+        return {} if ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"].present?
+
         RequestStore[cache_key] ||= Rails.cache.fetch(cache_key, expires_in: 1.week) do
           unscoped.select(:var, :value).each_with_object({}) do |record, result|
             result[record.var] = record.value
