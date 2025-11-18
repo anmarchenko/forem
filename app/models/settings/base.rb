@@ -144,7 +144,7 @@ module Settings
       end
 
       def value_of(var_name)
-        unless table_exists?
+        if !ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"].present? && !table_exists?
           # Fallback to default value if table was not ready (before migrate)
           Rails.logger.warn("'#{table_name}' does not exist, '#{name}.#{var_name}' will return the default value.")
           return

@@ -1,5 +1,5 @@
 class FlareTag
-  FLARE_TAG_IDS_HASH = Tag.where(name: Constants::Tags::FLARE_TAG_NAMES).pluck(:name, :id).to_h.freeze
+  FLARE_TAG_IDS_HASH = ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"].present? ? {} : Tag.where(name: Constants::Tags::FLARE_TAG_NAMES).pluck(:name, :id).to_h.freeze
 
   def initialize(article, except_tag = nil)
     @article = article.decorate
