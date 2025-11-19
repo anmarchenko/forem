@@ -14,7 +14,7 @@ jobs:
   test:
     parallelism: << pipeline.parameters.parallelism >>
     docker:
-      - image: cimg/ruby:3.4.1-browsers
+      - image: cimg/ruby:3.3.0-node
       - image: cimg/postgres:13.13
         environment:
           POSTGRES_USER: postgres
