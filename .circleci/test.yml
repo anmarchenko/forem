@@ -26,9 +26,9 @@ jobs:
       DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/Forem_test
       DATABASE_NAME_TEST: Forem_test
       REDIS_URL: redis://localhost:6379
-      DD_ENV: ci
       BUNDLE_PATH: vendor/bundle
       BUNDLE_JOBS: 4
+      DD_ENV: ci
       DD_SERVICE: forem-circleci
     steps:
       - checkout
