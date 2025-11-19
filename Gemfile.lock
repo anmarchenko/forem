@@ -1,22 +1,22 @@
 GIT
   remote: https://github.com/DataDog/datadog-ci-rb.git
-  revision: 527573efc4bdd8dfda5482362474140b8ce38058
+  revision: b1f37ebc91e0810538228b25ed349b01e76716b1
   ref: main
   specs:
-    datadog-ci (1.23.1)
+    datadog-ci (1.23.3)
       datadog (~> 2.4)
       drb
       msgpack
 
 GIT
   remote: https://github.com/DataDog/dd-trace-rb.git
-  revision: c5e3981cf80a8936195a247232243c250f1d8ecc
+  revision: 276464aed539b612ea9c5b721a0dae9c64a4f65a
   ref: master
   specs:
     datadog (2.23.0)
       datadog-ruby_core_source (~> 3.4, >= 3.4.1)
-      libdatadog (~> 22.0.1.1.0)
-      libddwaf (~> 1.25.1.1.0)
+      libdatadog (~> 24.0.1.1.0)
+      libddwaf (~> 1.30.0.0.0)
       logger
       msgpack
 
@@ -490,15 +490,15 @@ GEM
     language_server-protocol (3.17.0.5)
     launchy (2.5.2)
       addressable (~> 2.8)
-    libdatadog (22.0.1.1.0)
-    libdatadog (22.0.1.1.0-x86_64-linux)
-    libddwaf (1.25.1.1.0)
+    libdatadog (24.0.1.1.0)
+    libdatadog (24.0.1.1.0-x86_64-linux)
+    libddwaf (1.30.0.0.0)
       ffi (~> 1.0)
-    libddwaf (1.25.1.1.0-arm64-darwin)
+    libddwaf (1.30.0.0.0-arm64-darwin)
       ffi (~> 1.0)
-    libddwaf (1.25.1.1.0-x86_64-darwin)
+    libddwaf (1.30.0.0.0-x86_64-darwin)
       ffi (~> 1.0)
-    libddwaf (1.25.1.1.0-x86_64-linux)
+    libddwaf (1.30.0.0.0-x86_64-linux)
       ffi (~> 1.0)
     libhoney (2.2.0)
       addressable (~> 2.0)
