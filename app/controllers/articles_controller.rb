@@ -3,6 +3,8 @@ class ArticlesController < ApplicationController
 
   # This controller handles all article-related actions from creation to management
   # NOTE: It seems quite odd to not authenticate the user for the :new action.
+
+
   before_action :authenticate_user!, except: %i[feed new]
   before_action :set_article, only: %i[edit manage update destroy stats admin_unpublish admin_featured_toggle]
   # NOTE: Consider pushing this check into the associated Policy.  We could choose to raise a
@@ -11,20 +13,17 @@ class ArticlesController < ApplicationController
   before_action :set_cache_control_headers, only: %i[feed]
   after_action :verify_authorized
 
-  ##
-  # [@jeremyf] - My dreamiest of dreams is to move this to the ApplicationController.  But it's very
-  #              presence could create some havoc with our edge caching.  So I'm scoping it to the
-  #              place where the code is likely to raise an ApplicationPolicy::UserRequiredError.
-  #
+
+
   #              I still want to enable this, but first want to get things mostly conformant with
   #              existing expectations.  Note, in config/application.rb, we're rescuing the below
   #              exception as though it was a Pundit::NotAuthorizedError.
-  #
-  #              The difference being that rescue_from is an ALWAYS use case.  Whereas the
   #              config/application.rb uses the config.consider_all_requests_local to determine if
   #              we bubble the exception up or handle it.
   #
   # rescue_from ApplicationPolicy::UserRequiredError, with: :respond_with_request_for_authentication
+
+
 
   # Generates RSS/Atom feed for articles
   def feed
@@ -80,10 +79,12 @@ class ArticlesController < ApplicationController
       authorize(Article)
     else
       skip_authorization
-
       # We want the query params for the request (as that is where we have the prefill).  The
       # `request.path` excludes the query parameters, so we're going with the `request.url` which
       # includes the parameters.
+      #
+      #
+
       store_location_for(:user, request.url)
     end
   end
@@ -103,8 +104,10 @@ class ArticlesController < ApplicationController
     @article = @article.decorate
     @discussion_lock = @article.discussion_lock
     @user = @article.user
+
     @rating_vote = RatingVote.where(article_id: @article.id, user_id: @user.id).first
     @organizations = @user&.organizations
+
     # TODO: fix this for multi orgs
     @org_members = @organization.users.pluck(:name, :id) if @organization
   end
@@ -116,9 +119,11 @@ class ArticlesController < ApplicationController
       renderer = ContentRenderer.new(params[:article_body], source: Article.new, user: current_user)
       result = renderer.process_article
       processed_html = result.processed_html
+
       front_matter = result.front_matter.to_h
     rescue StandardError => e
       @article = Article.new(body_markdown: params[:article_body])
+
       @article.errors.add(:base, ErrorMessages::Clean.call(e.message))
     end
 
@@ -127,9 +132,14 @@ class ArticlesController < ApplicationController
         format.json { render json: @article.errors, status: :unprocessable_entity }
       else
         format.json do
+
           if front_matter["tags"]
             tags = Article.new.tag_list.add(front_matter["tags"], parser: ActsAsTaggableOn::TagParser)
           end
+
+
+
+
           if front_matter["cover_image"]
             cover_image = ApplicationController.helpers.cloud_cover_url(front_matter["cover_image"])
           end
@@ -162,7 +172,6 @@ class ArticlesController < ApplicationController
     @user = @article.user || current_user
 
     updated = Articles::Updater.call(@user, @article, article_params_json)
-
     respond_to do |format|
       format.html do
         # TODO: JSON should probably not be returned in the format.html section

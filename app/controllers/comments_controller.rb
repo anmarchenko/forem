@@ -13,6 +13,7 @@ class CommentsController < ApplicationController
   # rubocop:disable Metrics/PerceivedComplexity
   def index
     skip_authorization
+
     @comment = Comment.new
     @podcast = Podcast.find_by(slug: params[:username])
 

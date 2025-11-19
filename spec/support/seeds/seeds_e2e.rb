@@ -3,6 +3,7 @@ return unless Rails.env.test? && ENV["E2E"].present?
 # NOTE: when adding new data, please use the Seeder class to ensure the seed tasks
 # stays idempotent.
 require Rails.root.join("app/lib/seeder")
+return if ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"].present?
 
 seeder = Seeder.new
 

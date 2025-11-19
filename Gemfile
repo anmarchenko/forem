@@ -4,6 +4,8 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 source "https://rubygems.org"
 ruby File.read(File.join(File.dirname(__FILE__), ".ruby-version")).strip
 
+gem "openssl", ">= 3.3.1"
+
 group :production do
   gem "hypershield", "~> 0.2.2" # Allow admins to query data via internal
   gem "nakayoshi_fork", "~> 0.0.4" # solves CoW friendly problem on MRI 2.2 and later
@@ -15,10 +17,12 @@ gem "acts-as-taggable-on", "~> 10.0" # A tagging plugin for Rails applications t
 gem "acts_as_follower", github: "forem/acts_as_follower", branch: "master" # Allow any model to follow any other model
 gem "addressable", "~> 2.8" # A replacement for the URI implementation that is part of Ruby's standard library
 gem "ahoy_email", "~> 2.2.0" # Email analytics for Rails
+
 gem "ahoy_matey", "~> 5.0.2" # Tracking analytics for Rails
 gem "algoliasearch-rails", "~> 2.3" # Algolia Search API Client
 gem "ancestry", "~> 4.2" # Ancestry allows the records of a ActiveRecord model to be organized in a tree structure
 gem "blazer", "~> 2.6" # Allows admins to query data
+
 gem "bootsnap", ">= 1.1.0", require: false # Boot large ruby/rails apps faster
 gem "carrierwave", "~> 2.2" # Upload files in your Ruby applications, map them to a range of ORMs, store them on different backends
 gem "carrierwave-bombshelter", "~> 0.2" # Protect your carrierwave from image bombs
@@ -40,6 +44,8 @@ gem "field_test", "~> 0.5" # A/B testing
 gem "flipper", "~> 0.25.0" # Feature flipping / flags for Ruby
 gem "flipper-active_record", "~> 0.25.0" # Store Flipper flags in ActiveRecord
 gem "flipper-active_support_cache_store", "~> 0.25.0" # Cache feature flags for a short time
+
+
 gem "flipper-ui", "~> 0.25.0" # UI for the Flipper gem
 gem "fog-aws", "~> 3.14" # 'fog' gem to support Amazon Web Services
 gem "front_matter_parser", "~> 1.0" # Parse a front matter from syntactically correct strings or files
@@ -143,7 +149,6 @@ group :development, :test do
   gem "debug", ">= 1.0.0" # Provide a debug with step capabilities
   gem "dotenv-rails", "~> 2.8.1" # For loading ENV variables locally
   gem "faker", "~> 2.22" # A library for generating fake data such as names, addresses, and phone numbers
-  gem "knapsack_pro", "~> 8.0" # Help parallelize Ruby spec builds
   gem "pry", "~> 0.14" # An IRB alternative and runtime developer console
   gem "pry-rails", "~> 0.3" # Use Pry as your rails console
   gem "rspec-rails", "~> 6.0", ">= 6.0.3" # rspec-rails is a testing framework for Rails 3+
@@ -158,6 +163,7 @@ end
 
 group :test do
   gem "datadog-ci", github: "DataDog/datadog-ci-rb", ref: "main"
+  # gem "datadog-ci", path: "../../p/datadog-ci-rb"
   gem "cuprite", "~> 0.13" # Capybara driver for Chrome
   gem "exifr", ">= 1.3.6" # EXIF Reader is a module to read EXIF from JPEG and TIFF images
   gem "factory_bot_rails", "~> 6.2" # factory_bot is a fixtures replacement with a straightforward definition syntax, support for multiple build strategies

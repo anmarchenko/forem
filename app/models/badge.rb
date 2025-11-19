@@ -13,6 +13,7 @@ class Badge < ApplicationRecord
   validates :title, presence: true, uniqueness: true
   validates :allow_multiple_awards, inclusion: { in: [true, false] }
 
+
   before_validation :generate_slug
 
   def self.id_for_slug(slug)
@@ -22,6 +23,7 @@ class Badge < ApplicationRecord
   def path
     "/badge/#{slug}"
   end
+
 
   private
 

@@ -6,6 +6,8 @@ return if Rails.env.production?
 # stays idempotent.
 require Rails.root.join("app/lib/seeder")
 
+return if ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"].present?
+
 # we use this to be able to increase the size of the seeded DB at will
 # eg.: `SEEDS_MULTIPLIER=2 rails db:seed` would double the amount of data
 seeder = Seeder.new

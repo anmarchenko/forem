@@ -3,6 +3,7 @@ class Comment < ApplicationRecord
   resourcify
 
   include PgSearch::Model
+
   include Reactable
   include AlgoliaSearchable
 
@@ -28,6 +29,7 @@ class Comment < ApplicationRecord
 
   belongs_to :commentable, polymorphic: true, optional: true
   belongs_to :user
+
 
   counter_culture :commentable
   counter_culture :user

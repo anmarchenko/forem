@@ -144,7 +144,7 @@ module Settings
       end
 
       def value_of(var_name)
-        unless table_exists?
+        if !ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"].present? && !table_exists?
           # Fallback to default value if table was not ready (before migrate)
           Rails.logger.warn("'#{table_name}' does not exist, '#{name}.#{var_name}' will return the default value.")
           return
@@ -154,6 +154,8 @@ module Settings
       end
 
       def all_settings
+        return {} if ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"].present?
+
         RequestStore[cache_key] ||= Rails.cache.fetch(cache_key, expires_in: 1.week) do
           unscoped.select(:var, :value).each_with_object({}) do |record, result|
             result[record.var] = record.value

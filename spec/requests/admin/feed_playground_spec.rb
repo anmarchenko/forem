@@ -9,6 +9,8 @@ RSpec.describe "/admin/advanced/tools/feed_playground" do
         sign_in user
       end
 
+
+
       it "blocks the request" do
         expect do
           get feed_playground_admin_tools_path

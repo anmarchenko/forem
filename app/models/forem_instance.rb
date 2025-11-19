@@ -14,6 +14,8 @@ class ForemInstance
   end
 
   def self.contact_email
+    return "test@example.com" if ENV["DD_TEST_OPTIMIZATION_DISCOVERY_ENABLED"].present?
+
     Settings::General.contact_email
   end
 
