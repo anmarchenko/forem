@@ -33,6 +33,9 @@ jobs:
             curl -fsSL https://github.com/DataDog/ddtest/releases/latest/download/ddtest-linux-amd64 -o bin/ddtest
             chmod +x bin/ddtest
       - run:
+          name: Copy .env
+          command: cp .env_sample .env
+      - run:
           name: Plan tests with ddtest
           command: ./bin/ddtest plan --platform ruby --framework rspec
           environment:
