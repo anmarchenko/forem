@@ -26,6 +26,7 @@ class Billboard < ApplicationRecord
                                post_comments_mid
                                digest_first
                                digest_second].freeze
+
   ALLOWED_PLACEMENT_AREAS_HUMAN_READABLE = ["Sidebar Left (First Position)",
                                             "Sidebar Left (Second Position)",
                                             "Sidebar Right (Home first position)",
