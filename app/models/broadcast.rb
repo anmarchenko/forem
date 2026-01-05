@@ -13,9 +13,7 @@ class Broadcast < ApplicationRecord
   before_save :update_active_status_updated_at, if: :will_save_change_to_active?
 
   scope :active, -> { where(active: true) }
-
   scope :announcement, -> { where(type_of: "Announcement") }
-
   scope :welcome, -> { where(type_of: "Welcome") }
 
   def get_inner_body(content)
