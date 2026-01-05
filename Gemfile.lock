@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/DataDog/datadog-ci-rb.git
-  revision: b1f37ebc91e0810538228b25ed349b01e76716b1
+  revision: 8c9aba09c0c404e05b0fdf2148ddfdce9b7af335
   ref: main
   specs:
-    datadog-ci (1.23.3)
+    datadog-ci (1.25.0)
       datadog (~> 2.4)
       drb
       msgpack
