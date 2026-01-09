@@ -26,9 +26,6 @@ class Role < ApplicationRecord
     end
   end
 
-
-
-
   has_and_belongs_to_many :users, join_table: :users_roles # rubocop:disable Rails/HasAndBelongsToMany
 
   belongs_to :resource,
@@ -48,6 +45,8 @@ class Role < ApplicationRecord
   # resource_id to grab the specific Tag related to that moderator's role.
   def resource_name
     return resource_type unless resource_id
+
+
 
     Tag.find(resource_id).name
   end
