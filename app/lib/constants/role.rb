@@ -11,8 +11,6 @@ module Constants
       "Trusted" => { name: "trusted", resource_type: nil }
     }.freeze
 
-
-
     BASE_ROLES = BASE_ROLES_LABELS_TO_WHERE_CLAUSE.keys.freeze
 
     SPECIAL_ROLES_LABELS_TO_WHERE_CLAUSE = {
@@ -39,5 +37,7 @@ module Constants
 
     ALL_ROLES_LABELS_TO_WHERE_CLAUSE =
       SPECIAL_ROLES_LABELS_TO_WHERE_CLAUSE.merge(BASE_ROLES_LABELS_TO_WHERE_CLAUSE).freeze
+
+    NEW = 0
   end
 end
