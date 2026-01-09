@@ -39,5 +39,6 @@ module Constants
       SPECIAL_ROLES_LABELS_TO_WHERE_CLAUSE.merge(BASE_ROLES_LABELS_TO_WHERE_CLAUSE).freeze
 
     NEW = 0
+    NEWNEW = 1
   end
 end
