@@ -11,8 +11,9 @@ module Constants
       "Trusted" => { name: "trusted", resource_type: nil }
     }.freeze
 
-    BASE_ROLES = BASE_ROLES_LABELS_TO_WHERE_CLAUSE.keys.freeze
 
+
+    BASE_ROLES = BASE_ROLES_LABELS_TO_WHERE_CLAUSE.keys.freeze
 
     SPECIAL_ROLES_LABELS_TO_WHERE_CLAUSE = {
       "Admin" => { name: "admin", resource_type: nil },
