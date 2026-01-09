@@ -162,8 +162,8 @@ group :development, :test do
 end
 
 group :test do
-  # gem "datadog-ci", github: "DataDog/datadog-ci-rb", ref: "main"
-  gem "datadog-ci", github: "DataDog/datadog-ci-rb", ref: "anmarchenko/track_compiled_iseq_constants"
+  gem "datadog-ci", github: "DataDog/datadog-ci-rb", ref: "main"
+  # gem "datadog-ci", github: "DataDog/datadog-ci-rb", ref: "anmarchenko/track_compiled_iseq_constants"
   # gem "datadog-ci", path: "../../p/datadog-ci-rb"
   gem "cuprite", "~> 0.13" # Capybara driver for Chrome
   gem "exifr", ">= 1.3.6" # EXIF Reader is a module to read EXIF from JPEG and TIFF images

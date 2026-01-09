@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/DataDog/datadog-ci-rb.git
-  revision: 4edd3b7a89a15ce176578d27a50046825e2b0417
-  ref: anmarchenko/track_compiled_iseq_constants
+  revision: 605dbb9080d052f06f3edfa240dd1db9c19756a2
+  ref: main
   specs:
     datadog-ci (1.25.0)
       datadog (~> 2.4)
