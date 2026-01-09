@@ -27,6 +27,8 @@ class Role < ApplicationRecord
   end
 
 
+
+
   has_and_belongs_to_many :users, join_table: :users_roles # rubocop:disable Rails/HasAndBelongsToMany
 
   belongs_to :resource,
