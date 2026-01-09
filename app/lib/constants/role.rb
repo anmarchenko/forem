@@ -13,6 +13,7 @@ module Constants
 
     BASE_ROLES = BASE_ROLES_LABELS_TO_WHERE_CLAUSE.keys.freeze
 
+
     SPECIAL_ROLES_LABELS_TO_WHERE_CLAUSE = {
       "Admin" => { name: "admin", resource_type: nil },
       "Tech Admin" => { name: "tech_admin", resource_type: nil },
@@ -31,6 +32,7 @@ module Constants
       "Resource Admin: Page" => { name: "single_resource_admin", resource_type: "Page" },
       "Resource Admin: Tag" => { name: "single_resource_admin", resource_type: "Tag" }
     }.freeze
+
 
     SPECIAL_ROLES = SPECIAL_ROLES_LABELS_TO_WHERE_CLAUSE.keys.freeze
 
