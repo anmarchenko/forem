@@ -21,6 +21,7 @@ class AdminMenu
            ]),
       item(name: "organizations"),
       item(name: "podcasts"),
+
       item(name: "tags"),
     ]
 

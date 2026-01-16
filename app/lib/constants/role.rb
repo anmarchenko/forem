@@ -32,9 +32,13 @@ module Constants
       "Resource Admin: Tag" => { name: "single_resource_admin", resource_type: "Tag" }
     }.freeze
 
+
     SPECIAL_ROLES = SPECIAL_ROLES_LABELS_TO_WHERE_CLAUSE.keys.freeze
 
     ALL_ROLES_LABELS_TO_WHERE_CLAUSE =
       SPECIAL_ROLES_LABELS_TO_WHERE_CLAUSE.merge(BASE_ROLES_LABELS_TO_WHERE_CLAUSE).freeze
+
+    NEW = 0
+    NEWNEW = 1
   end
 end

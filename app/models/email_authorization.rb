@@ -11,6 +11,7 @@ class EmailAuthorization < ApplicationRecord
 
   before_create :generate_confirmation_token
 
+
   def self.last_verification_date(user)
     user.email_authorizations
       .where.not(verified_at: nil)

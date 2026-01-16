@@ -3,6 +3,7 @@
 class Campaign
   include Singleton
 
+
   METHODS = %w[
     articles_expiry_time
     articles_require_approval?

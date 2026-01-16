@@ -29,8 +29,6 @@ class Comment < ApplicationRecord
 
   belongs_to :commentable, polymorphic: true, optional: true
   belongs_to :user
-
-
   counter_culture :commentable
   counter_culture :user
 

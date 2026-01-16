@@ -46,6 +46,8 @@ class Role < ApplicationRecord
   def resource_name
     return resource_type unless resource_id
 
+
+
     Tag.find(resource_id).name
   end
 

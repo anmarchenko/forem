@@ -182,4 +182,5 @@ group :test do
   gem "webmock", "~> 3.17", require: false # WebMock allows stubbing HTTP requests and setting expectations on HTTP requests
   gem "with_model", "~> 2.1.7" # Dynamically build a model within an RSpec context
   gem "zonebie", "~> 0.6.1" # Runs your tests in a random timezone
+
 end
