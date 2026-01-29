@@ -47,31 +47,6 @@ x-backend: &backend
       condition: service_healthy
 
 services:
-  devcontainer:
-    <<: *backend
-    environment:
-      MALLOC_ARENA_MAX: 2
-      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-1}
-      REDIS_URL: redis://redis:6379/
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432
-      DATABASE_URL_TEST: postgres://postgres:postgres@postgres:5432
-      CHROME_URL: http://chrome:3333
-    volumes:
-      - ${LOCAL_WORKSPACE_FOLDER:-.}:/workspaces/forem:cached
-      - bundle:/usr/local/bundle
-      - cypress:/root/.cache/Cypress
-      - rails_cache:/workspaces/forem/tmp/cache
-      - assets:/workspaces/forem/public/assets
-      - node_modules:/workspaces/forem/node_modules
-      - history:/usr/local/hist
-      - ${LOCAL_WORKSPACE_FOLDER:-.}/.dockerdev/.psqlrc:/root/.psqlrc:ro
-      - /var/run/docker.sock:/var/run/docker-host.sock
-    command: sleep infinity
-    tmpfs:
-      - /workspaces/forem/tmp/pids
-    ports:
-      - '3000:3000'
-
   rails:
     <<: *backend
     command: bundle exec rails
@@ -103,7 +78,7 @@ services:
     ports:
       - "54323:5432"
     healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
+      test: ["CMD-SHELL", "pg_isready -U postgres -h 127.0.0.1"]
       interval: 5s
 
   redis:
@@ -113,7 +88,7 @@ services:
     ports:
       - "63754:6379"
     healthcheck:
-      test: redis-cli ping
+      test: ["CMD", "redis-cli", "ping"]
       interval: 1s
       timeout: 3s
       retries: 30
@@ -143,12 +118,6 @@ services:
     environment:
       PORT: 3333
       CONNECTION_TIMEOUT: 600000
-
-  rspec_system:
-    <<: *backend
-    depends_on:
-      chrome:
-        condition: service_started
 
 volumes:
   bundle:
