@@ -1,26 +1,4 @@
 GIT
-  remote: https://github.com/DataDog/datadog-ci-rb.git
-  revision: 278155308e2abbebce529d6526ab4c5d9f6ded61
-  ref: main
-  specs:
-    datadog-ci (1.26.0)
-      datadog (~> 2.4)
-      drb
-      msgpack
-
-GIT
-  remote: https://github.com/DataDog/dd-trace-rb.git
-  revision: 276464aed539b612ea9c5b721a0dae9c64a4f65a
-  ref: master
-  specs:
-    datadog (2.23.0)
-      datadog-ruby_core_source (~> 3.4, >= 3.4.1)
-      libdatadog (~> 24.0.1.1.0)
-      libddwaf (~> 1.30.0.0.0)
-      logger
-      msgpack
-
-GIT
   remote: https://github.com/forem/acts_as_follower.git
   revision: 06393d3693a1a3d4b390aec4976c8b8f3a81cf01
   branch: master
@@ -220,7 +198,6 @@ GEM
       puma (>= 3.8.0)
       railties (>= 5.2.0)
     dante (0.2.0)
-    datadog-ruby_core_source (3.4.1)
     date (3.3.4)
     dead_end (4.0.0)
     debug (1.9.2)
@@ -256,7 +233,6 @@ GEM
     dotenv-rails (2.8.1)
       dotenv (= 2.8.1)
       railties (>= 3.2)
-    drb (2.2.3)
     e2mmap (0.1.0)
     easy_translate (0.5.1)
       thread
@@ -490,16 +466,6 @@ GEM
     language_server-protocol (3.17.0.5)
     launchy (2.5.2)
       addressable (~> 2.8)
-    libdatadog (24.0.1.1.0)
-    libdatadog (24.0.1.1.0-x86_64-linux)
-    libddwaf (1.30.0.0.0)
-      ffi (~> 1.0)
-    libddwaf (1.30.0.0.0-arm64-darwin)
-      ffi (~> 1.0)
-    libddwaf (1.30.0.0.0-x86_64-darwin)
-      ffi (~> 1.0)
-    libddwaf (1.30.0.0.0-x86_64-linux)
-      ffi (~> 1.0)
     libhoney (2.2.0)
       addressable (~> 2.0)
       excon
@@ -509,7 +475,6 @@ GEM
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
-    logger (1.7.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -1038,8 +1003,6 @@ DEPENDENCIES
   countries (~> 5.5)
   cuprite (~> 0.13)
   cypress-rails (~> 0.5)
-  datadog!
-  datadog-ci!
   debug (>= 1.0.0)
   derailed_benchmarks (~> 2.1)
   devise (~> 4.8)

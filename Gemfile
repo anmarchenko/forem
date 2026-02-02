@@ -31,7 +31,6 @@ gem "cld3", "~> 3.5" # Ruby interface for Compact Language Detector v3
 gem "cloudinary", "~> 1.23" # Client library for easily using the Cloudinary service
 gem "counter_culture", "~> 3.2" # counter_culture provides turbo-charged counter caches that are kept up-to-date
 gem "countries", "~> 5.5" # All sorts of useful information about every country packaged as pretty little country objects. It includes data from ISO 3166
-gem "datadog", github: "DataDog/dd-trace-rb", ref: "master"
 gem "devise", "~> 4.8" # Flexible authentication solution for Rails
 gem "devise_invitable", "~> 2.0.6" # Allows invitations to be sent for joining
 gem "dogstatsd-ruby", "~> 5.6" # A client for DogStatsD, an extension of the StatsD metric server for Datadog
@@ -162,8 +161,6 @@ group :development, :test do
 end
 
 group :test do
-  gem "datadog-ci", github: "DataDog/datadog-ci-rb", ref: "main"
-  # gem "datadog-ci", path: "../../p/datadog-ci-rb"
   gem "cuprite", "~> 0.13" # Capybara driver for Chrome
   gem "exifr", ">= 1.3.6" # EXIF Reader is a module to read EXIF from JPEG and TIFF images
   gem "factory_bot_rails", "~> 6.2" # factory_bot is a fixtures replacement with a straightforward definition syntax, support for multiple build strategies
