@@ -133,7 +133,9 @@ jobs:
       - run: cp .env_sample .env
       - name: Prepare per-worker test databases
         run: |
-          for i in $(seq 0 $((DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM - 1))); do
+          # ddtest expands {{nodeIndex}} to ciNode*N + localIndex; create a generous
+          # range so every (ciNode, localIndex) combination has a database.
+          for i in $(seq 0 $((DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM * 10 - 1))); do
             DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test$i" bundle exec rails db:test:prepare
           done
       - name: Configure Datadog Test Optimization
