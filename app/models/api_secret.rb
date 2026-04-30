@@ -11,6 +11,10 @@ class ApiSecret < ApplicationRecord
 
   after_create_commit :clear_rack_attack_cache
 
+  def secret_preview
+    secret.to_s[0, 4]
+  end
+
   private
 
   def user_api_secret_count

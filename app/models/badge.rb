@@ -24,6 +24,10 @@ class Badge < ApplicationRecord
     "/badge/#{slug}"
   end
 
+  def display_title
+    title.to_s.strip
+  end
+
   private
 
   def generate_slug
