@@ -132,11 +132,15 @@ jobs:
           bundler-cache: true
       - run: cp .env_sample .env
       - name: Prepare per-worker test databases
+        env:
+          NODE_INDEX: ${{ matrix.ci_node_index }}
         run: |
-          # ddtest expands {{nodeIndex}} to ciNode*N + localIndex; create a generous
-          # range so every (ciNode, localIndex) combination has a database.
-          for i in $(seq 0 $((DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM * 10 - 1))); do
-            DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test$i" bundle exec rails db:test:prepare
+          # ddtest expands {{nodeIndex}} to ciNode*10000 + localIndex; this matrix node
+          # has its own postgres, so only create the DBs its inner workers will use.
+          WORKERS=$(nproc)
+          for i in $(seq 0 $((WORKERS - 1))); do
+            GLOBAL=$((NODE_INDEX * 10000 + i))
+            DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test${GLOBAL}" bundle exec rails db:test:prepare
           done
       - name: Configure Datadog Test Optimization
         uses: datadog/test-visibility-github-action@v2
