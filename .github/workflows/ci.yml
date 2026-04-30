@@ -89,7 +89,7 @@ jobs:
     timeout-minutes: 20
     env:
       DD_TEST_OPTIMIZATION_RUNNER_CI_NODE: ${{ matrix.ci_node_index }}
-      DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: TEST_ENV_NUMBER={{nodeIndex}}
+      DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}}
 
     services:
       postgres:
@@ -134,7 +134,7 @@ jobs:
       - name: Prepare per-worker test databases
         run: |
           for i in $(seq 0 $((DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM - 1))); do
-            TEST_ENV_NUMBER=$i bundle exec rails db:test:prepare
+            DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test$i" bundle exec rails db:test:prepare
           done
       - name: Configure Datadog Test Optimization
         uses: datadog/test-visibility-github-action@v2
