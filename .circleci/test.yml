@@ -30,6 +30,8 @@ jobs:
       BUNDLE_JOBS: 4
       DD_ENV: ci
       DD_SERVICE: forem-circleci
+      DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
+      DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}}
     steps:
       - checkout
       - restore_cache:
@@ -42,8 +44,11 @@ jobs:
           name: Copy .env
           command: cp .env_sample .env
       - run:
-          name: Prepare database
-          command: bundle exec rails db:test:prepare
+          name: Prepare per-worker test databases
+          command: |
+            for i in $(seq 0 $((DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM - 1))); do
+              DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test$i" bundle exec rails db:test:prepare
+            done
       - test-optimization-circleci-orb/autoinstrument:
           languages: ruby
           site: datadoghq.eu
