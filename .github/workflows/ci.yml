@@ -89,6 +89,7 @@ jobs:
     timeout-minutes: 20
     env:
       DD_TEST_OPTIMIZATION_RUNNER_CI_NODE: ${{ matrix.ci_node_index }}
+      DD_TEST_OPTIMIZATION_RUNNER_CI_NODE_WORKERS: 1
       DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}}
 
     services:
@@ -131,17 +132,14 @@ jobs:
         with:
           bundler-cache: true
       - run: cp .env_sample .env
-      - name: Prepare per-worker test databases
+      - name: Prepare test database for this CI node
         env:
           NODE_INDEX: ${{ matrix.ci_node_index }}
         run: |
-          # ddtest expands {{nodeIndex}} to ciNode*10000 + localIndex; this matrix node
-          # has its own postgres, so only create the DBs its inner workers will use.
-          WORKERS=$(nproc)
-          for i in $(seq 0 $((WORKERS - 1))); do
-            GLOBAL=$((NODE_INDEX * 10000 + i))
-            DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test${GLOBAL}" bundle exec rails db:test:prepare
-          done
+          # CI_NODE_WORKERS=1, so ddtest runs single-worker mode and {{nodeIndex}}
+          # expands to ciNode*10000.
+          GLOBAL=$((NODE_INDEX * 10000))
+          DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test${GLOBAL}" bundle exec rails db:test:prepare
       - name: Configure Datadog Test Optimization
         uses: datadog/test-visibility-github-action@v2
         with:
