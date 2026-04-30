@@ -46,10 +46,14 @@ jobs:
       - run:
           name: Prepare per-worker test databases
           command: |
-            # ddtest expands {{nodeIndex}} to ciNode*N + localIndex; create a generous
-            # range so every (ciNode, localIndex) combination has a database.
-            for i in $(seq 0 $((DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM * 10 - 1))); do
-              DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test$i" bundle exec rails db:test:prepare
+            # ddtest expands {{nodeIndex}} to ciNode*ciNodeWorkers + localIndex; this
+            # parallel job has its own postgres, so only create the DBs its inner
+            # workers will use.
+            NODE_INDEX=${CIRCLE_NODE_INDEX:-0}
+            WORKERS=$(nproc)
+            for i in $(seq 0 $((WORKERS - 1))); do
+              GLOBAL=$((NODE_INDEX * WORKERS + i))
+              DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test${GLOBAL}" bundle exec rails db:test:prepare
             done
       - test-optimization-circleci-orb/autoinstrument:
           languages: ruby
