@@ -39,4 +39,8 @@ class ApiSecretsController < ApplicationController
   def destroy_params
     params.permit(:id)
   end
+
+  def current_user_secrets
+    current_user&.api_secrets || ApiSecret.none
+  end
 end

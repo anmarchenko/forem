@@ -12,4 +12,10 @@ class BadgesController < ApplicationController
     @badge = Badge.find_by(slug: params[:slug]) || not_found
     set_surrogate_key_header "badges-show-action"
   end
+
+  private
+
+  def badge_scope
+    Badge.order(:created_at)
+  end
 end

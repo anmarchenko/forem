@@ -1,4 +1,5 @@
 # coding: utf-8
+# Trigger CI to inspect test parallelization balance.
 
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 source "https://rubygems.org"

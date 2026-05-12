@@ -30,6 +30,9 @@ jobs:
       BUNDLE_JOBS: 4
       DD_ENV: ci
       DD_SERVICE: forem-circleci
+      DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
+      DD_TEST_OPTIMIZATION_RUNNER_CI_NODE_WORKERS: 1
+      DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}}
     steps:
       - checkout
       - restore_cache:
@@ -42,8 +45,13 @@ jobs:
           name: Copy .env
           command: cp .env_sample .env
       - run:
-          name: Prepare database
-          command: bundle exec rails db:test:prepare
+          name: Prepare test database for this CI node
+          command: |
+            # CI_NODE_WORKERS=1, so ddtest runs single-worker mode and {{nodeIndex}}
+            # expands to ciNode*10000.
+            NODE_INDEX=${CIRCLE_NODE_INDEX:-0}
+            GLOBAL=$((NODE_INDEX * 10000))
+            DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test${GLOBAL}" bundle exec rails db:test:prepare
       - test-optimization-circleci-orb/autoinstrument:
           languages: ruby
           site: datadoghq.eu

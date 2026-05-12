@@ -21,6 +21,8 @@ env:
   DD_SERVICE: forem
   DD_TEST_OPTIMIZATION_RUNNER_PLATFORM: ruby
   DD_TEST_OPTIMIZATION_RUNNER_FRAMEWORK: rspec
+  DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM: 1
+  DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
 
 jobs:
   build:
@@ -70,9 +72,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - name: Setup Datadog Test Runner
         run: bin/ddtest plan
-        env:
-          DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM: 1
-          DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
       - name: Set matrix output
         id: matrix
         run: cat .testoptimization/github/config >> $GITHUB_OUTPUT
@@ -90,6 +89,7 @@ jobs:
     timeout-minutes: 20
     env:
       DD_TEST_OPTIMIZATION_RUNNER_CI_NODE: ${{ matrix.ci_node_index }}
+      DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}}
 
     services:
       postgres:
@@ -131,7 +131,9 @@ jobs:
         with:
           bundler-cache: true
       - run: cp .env_sample .env
-      - run: bundle exec rails db:test:prepare
+      - name: Prepare test database for this CI node
+        run: |
+          DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test${DD_TEST_OPTIMIZATION_RUNNER_CI_NODE}" bundle exec rails db:test:prepare
       - name: Configure Datadog Test Optimization
         uses: datadog/test-visibility-github-action@v2
         with:
@@ -148,5 +150,3 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - name: RSpec
         run: bin/ddtest run
-        env:
-          DD_TEST_SESSION_NAME: test-runner-${{ matrix.ci_node_index }}
