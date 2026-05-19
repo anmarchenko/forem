@@ -1,4 +1,5 @@
 <div align="center">
+  <!-- Test Optimization CI trigger: 2026-05-19. -->
   <br>
   <h1>Forem 🌱</h1>
   <strong>For Empowering Community</strong>
