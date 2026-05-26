@@ -28,7 +28,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.matrix.outputs.matrix }}
+      matrix: ${{ steps.dd_plan.outputs.matrix }}
     env:
       E2E: true
 
@@ -70,11 +70,9 @@ jobs:
           chmod +x bin/ddtest
         env:
           GH_TOKEN: ${{ github.token }}
-      - name: Setup Datadog Test Runner
+      - id: dd_plan
+        name: Setup Datadog Test Runner
         run: bin/ddtest plan
-      - name: Set matrix output
-        id: matrix
-        run: cat .testoptimization/github/config >> $GITHUB_OUTPUT
       - name: Upload DD artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -88,7 +86,6 @@ jobs:
     needs: [build]
     timeout-minutes: 20
     env:
-      DD_TEST_OPTIMIZATION_RUNNER_CI_NODE: ${{ matrix.ci_node_index }}
       DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}}
 
     services:
@@ -133,7 +130,7 @@ jobs:
       - run: cp .env_sample .env
       - name: Prepare test database for this CI node
         run: |
-          DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test${DD_TEST_OPTIMIZATION_RUNNER_CI_NODE}" bundle exec rails db:test:prepare
+          DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test${{ matrix.ci_node_index }}" bundle exec rails db:test:prepare
       - name: Configure Datadog Test Optimization
         uses: datadog/test-visibility-github-action@v2
         with:
@@ -149,4 +146,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       - name: RSpec
-        run: bin/ddtest run
+        run: bin/ddtest run --ci-node ${{ matrix.ci_node_index }}

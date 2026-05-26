@@ -90,7 +90,7 @@ class User < ApplicationRecord
                                         inverse_of: :offender, foreign_key: :offender_id, dependent: :nullify
   has_many :organization_memberships, dependent: :delete_all
   has_many :organizations, through: :organization_memberships
-  # we keep page views as they belong to the article, not to the user who viewed it
+  # Page views remain with the article, not the user who viewed it.
   has_many :page_views, dependent: :nullify
   has_many :podcast_episode_appearances, dependent: :delete_all, inverse_of: :user
   has_many :podcast_episodes, through: :podcast_episode_appearances, source: :podcast_episode
@@ -137,7 +137,8 @@ class User < ApplicationRecord
   validates :following_orgs_count, presence: true
   validates :following_tags_count, presence: true
   validates :following_users_count, presence: true
-  validates :name, length: { in: 1..100 }, presence: true
+  validates :name,
+            length: { in: 1..100 }, presence: true
   validates :password, length: { in: 8..100 }, allow_nil: true
   validates :rating_votes_count, presence: true
   validates :reactions_count, presence: true
