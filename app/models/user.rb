@@ -90,7 +90,7 @@ class User < ApplicationRecord
                                         inverse_of: :offender, foreign_key: :offender_id, dependent: :nullify
   has_many :organization_memberships, dependent: :delete_all
   has_many :organizations, through: :organization_memberships
-  # Page views stay with the article, not the user who viewed it.
+  # Page views remain with the article, not the user who viewed it.
   has_many :page_views, dependent: :nullify
   has_many :podcast_episode_appearances, dependent: :delete_all, inverse_of: :user
   has_many :podcast_episodes, through: :podcast_episode_appearances, source: :podcast_episode
