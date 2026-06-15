@@ -40,11 +40,13 @@ jobs:
         with:
           fetch-depth: 3
       - name: Restore DDTest discovery cache
-        uses: actions/cache@v4
+        id: ddtest_discovery_cache
+        uses: actions/cache/restore@v4
         with:
           path: .ddtest-cache/tests-discovery.json
-          key: ddtest-discovery-${{ runner.os }}-${{ github.ref_name }}
+          key: ddtest-discovery-${{ runner.os }}-${{ github.ref_name }}-${{ github.sha }}
           restore-keys: |
+            ddtest-discovery-${{ runner.os }}-${{ github.ref_name }}-
             ddtest-discovery-${{ runner.os }}-
             ddtest-discovery-
       - name: Setup Ruby
@@ -93,13 +95,23 @@ jobs:
             echo "DDTest exclude pattern did not filter the canary spec" >&2
             exit 1
           fi
-      - name: Save latest DDTest discovery cache
+      - id: stage_ddtest_discovery_cache
+        name: Stage latest DDTest discovery cache
         if: always()
         run: |
           if [ -f .testoptimization/tests-discovery/tests.json ]; then
             mkdir -p .ddtest-cache
             cp .testoptimization/tests-discovery/tests.json .ddtest-cache/tests-discovery.json
+            echo "cache-ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "cache-ready=false" >> "$GITHUB_OUTPUT"
           fi
+      - name: Save latest DDTest discovery cache
+        if: always() && steps.stage_ddtest_discovery_cache.outputs.cache-ready == 'true' && steps.ddtest_discovery_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .ddtest-cache/tests-discovery.json
+          key: ${{ steps.ddtest_discovery_cache.outputs.cache-primary-key }}
       - name: Upload DD artifacts
         uses: actions/upload-artifact@v4
         with:
