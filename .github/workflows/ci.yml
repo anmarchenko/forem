@@ -38,6 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # DDTest discovery cache validation needs the cache source commit locally.
           fetch-depth: 3
       - name: Restore DDTest discovery cache
         id: ddtest_discovery_cache
