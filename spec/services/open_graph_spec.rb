@@ -1,6 +1,7 @@
 require "rails_helper"
 
 describe OpenGraph, :vcr, type: :service do
+  # Exercises ddtest discovery-cache invalidation for changed specs.
   VCR.use_cassette("open_graph") do
     let(:page) { described_class.new("https://github.com/forem") }
   end

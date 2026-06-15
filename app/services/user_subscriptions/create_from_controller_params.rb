@@ -14,7 +14,7 @@ module UserSubscriptions
       @user = user
       @source_type = user_subscription_params[:source_type]
       @source_id = user_subscription_params[:source_id]
-      @response = Response.new(success: false)
+      @response = Response.new(success: false, data: nil, error: nil)
 
       # TODO: [@forem/delightful]: uncomment this once email confirmation is re-enabled
       # @subscriber_email = user_subscription_params[:subscriber_email]
