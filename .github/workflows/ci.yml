@@ -23,6 +23,9 @@ env:
   DD_TEST_OPTIMIZATION_RUNNER_FRAMEWORK: rspec
   DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM: 1
   DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
+  DD_TEST_OPTIMIZATION_RUNNER_TEST_DISCOVERY_CACHE: .ddtest-cache/tests-discovery.json
+  DD_TEST_OPTIMIZATION_RUNNER_TESTS_EXCLUDE_PATTERN: 'spec/ddtest/excluded/**/*_spec.rb'
+  DD_CIVISIBILITY_EARLY_FLAKE_DETECTION_ENABLED: 'false'
 
 jobs:
   build:
@@ -34,6 +37,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Restore DDTest discovery cache
+        uses: actions/cache@v4
+        with:
+          path: .ddtest-cache/tests-discovery.json
+          key: ddtest-discovery-${{ runner.os }}-${{ github.ref_name }}
+          restore-keys: |
+            ddtest-discovery-${{ runner.os }}-
+            ddtest-discovery-
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -73,6 +84,20 @@ jobs:
       - id: dd_plan
         name: Setup Datadog Test Runner
         run: bin/ddtest plan
+      - name: Verify DDTest exclude pattern
+        run: |
+          test -s .testoptimization/runner/test-files.txt
+          if grep -Fq "spec/ddtest/excluded/exclude_pattern_canary_spec.rb" .testoptimization/runner/test-files.txt .testoptimization/runner/tests-split/runner-*; then
+            echo "DDTest exclude pattern did not filter the canary spec" >&2
+            exit 1
+          fi
+      - name: Save latest DDTest discovery cache
+        if: always()
+        run: |
+          if [ -f .testoptimization/tests-discovery/tests.json ]; then
+            mkdir -p .ddtest-cache
+            cp .testoptimization/tests-discovery/tests.json .ddtest-cache/tests-discovery.json
+          fi
       - name: Upload DD artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -86,7 +111,7 @@ jobs:
     needs: [build]
     timeout-minutes: 20
     env:
-      DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}}
+      DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}};DATABASE_NAME_TEST=Forem_test{{nodeIndex}}
 
     services:
       postgres:
@@ -130,7 +155,10 @@ jobs:
       - run: cp .env_sample .env
       - name: Prepare test database for this CI node
         run: |
-          DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/Forem_test${{ matrix.ci_node_index }}" bundle exec rails db:test:prepare
+          DATABASE_NAME="Forem_test${{ matrix.ci_node_index }}"
+          DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/${DATABASE_NAME}" \
+            DATABASE_NAME_TEST="${DATABASE_NAME}" \
+            bundle exec rails db:test:prepare
       - name: Configure Datadog Test Optimization
         uses: datadog/test-visibility-github-action@v2
         with:
