@@ -37,6 +37,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Restore DDTest discovery cache
         uses: actions/cache@v4
         with:
