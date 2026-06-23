@@ -34,6 +34,7 @@ jobs:
       matrix: ${{ steps.dd_plan.outputs.matrix }}
     env:
       E2E: true
+      DD_TEST_OPTIMIZATION_RUNNER_RUNTIME_TAGS: '{"os.version":"6.12.80"}'
 
     steps:
       - uses: actions/checkout@v4
@@ -127,6 +128,7 @@ jobs:
     timeout-minutes: 20
     env:
       DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}};DATABASE_NAME_TEST=Forem_test{{nodeIndex}}
+      DD_TEST_OPTIMIZATION_RUNTIME_TAGS: '{"os.version":"6.12.80"}'
 
     services:
       postgres:
