@@ -1,5 +1,6 @@
 class YoutubeTag < LiquidTagBase
   PARTIAL = "liquids/youtube".freeze
+  # Dogfood marker for validating suite-level Test Impact Analysis in CI.
   # rubocop:disable Layout/LineLength
   REGISTRY_REGEXP = %r{https?://(?:www\.)?(?:youtube\.com|youtu\.be)/(?:embed/|watch\?v=)?(?<video_id>[a-zA-Z0-9_-]{11})(?:(?:&|\?)(?:t=|start=)(?<time_parameter>\d+s?|(?:\d{1,}h)?(?:\d{1,2}m)?(?:\d{1,2}s)?))?}
   VALID_ID_REGEXP = /\A(?<video_id>[a-zA-Z0-9_-]{11})(?:(?:&|\?)(?:t=|start=)(?<time_parameter>\d+s?|(?:\d{1,}h)?(?:\d{1,2}m)?(?:\d{1,2}s)?))?\Z/
