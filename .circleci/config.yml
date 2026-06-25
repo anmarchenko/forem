@@ -17,6 +17,7 @@ jobs:
       BUNDLE_PATH: vendor/bundle
       BUNDLE_JOBS: 4
       DD_SERVICE: forem-circleci
+      DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: suite
     steps:
       - checkout
       - ruby/install-deps
