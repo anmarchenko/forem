@@ -33,6 +33,7 @@ jobs:
       DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
       DD_TEST_OPTIMIZATION_RUNNER_CI_NODE_WORKERS: 1
       DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}};DATABASE_NAME_TEST=Forem_test{{nodeIndex}}
+      DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: suite
     steps:
       - checkout
       - restore_cache:
