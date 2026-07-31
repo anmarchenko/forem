@@ -1,5 +1,5 @@
-name: TIA only (30 static runners)
-run-name: TIA only (30 static runners)
+name: TIA only (30 static runners, same skips)
+run-name: TIA only (30 static runners, same skips)
 
 on:
   push:
@@ -21,6 +21,11 @@ env:
   DD_TRACE_DEBUG: 0
   DD_ENV: ci
   DD_SERVICE: forem
+  DD_TEST_OPTIMIZATION_RUNNER_PLATFORM: ruby
+  DD_TEST_OPTIMIZATION_RUNNER_FRAMEWORK: rspec
+  DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM: 1
+  DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 30
+  DD_TEST_OPTIMIZATION_RUNNER_TEST_DISCOVERY_CACHE: .ddtest-cache/tests-discovery.json
   DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: suite
   DD_CIVISIBILITY_EARLY_FLAKE_DETECTION_ENABLED: 'false'
 
@@ -35,6 +40,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 3
+      - name: Restore DDTest discovery cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .ddtest-cache/tests-discovery.json
+          key: ddtest-discovery-${{ runner.os }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            ddtest-discovery-${{ runner.os }}-${{ github.ref_name }}-
+            ddtest-discovery-${{ runner.os }}-
+            ddtest-discovery-
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -55,6 +69,37 @@ jobs:
         if: steps.assetscache.outputs.cache-hit != 'true'
       - run: bundle exec rails assets:precompile
         if: steps.assetscache.outputs.cache-hit != 'true'
+      - run: cp .env_sample .env
+      - name: Configure Datadog Test Optimization
+        uses: datadog/test-visibility-github-action@v2
+        with:
+          languages: ruby
+          api_key: ${{ secrets.DD_API_KEY }}
+          site: datadoghq.eu
+      - name: Download ddtest binary
+        run: |
+          LATEST_PRERELEASE_TAG=$(gh release list --repo DataDog/ddtest --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | head -n 1)
+          gh release download "$LATEST_PRERELEASE_TAG" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
+          mv bin/ddtest-linux-amd64 bin/ddtest
+          chmod +x bin/ddtest
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Resolve the TIA-filtered test file set
+        run: bin/ddtest plan
+      - name: Report the shared TIA filter
+        shell: bash
+        run: |
+          test -s .testoptimization/runner/test-files.txt
+          discovered_count=$(find spec -type f -name '*_spec.rb' | wc -l | tr -d ' ')
+          runnable_count=$(wc -l < .testoptimization/runner/test-files.txt | tr -d ' ')
+          skipped_count=$((discovered_count - runnable_count))
+          echo "TIA selected ${runnable_count} runnable files and skipped ${skipped_count} of ${discovered_count} files"
+      - name: Upload the shared TIA filter
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-tia-runnable-test-files
+          path: .testoptimization/runner/test-files.txt
+          if-no-files-found: error
 
   rspec:
     name: RSpec runner ${{ matrix.ci_node_index }} of 30
@@ -115,6 +160,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 3
+      - name: Download the shared TIA filter
+        uses: actions/download-artifact@v4
+        with:
+          name: static-tia-runnable-test-files
+          path: .testoptimization/runner
       - name: Restore compiled assets
         uses: actions/cache/restore@v4
         with:
@@ -142,14 +192,20 @@ jobs:
       - name: Run static RSpec shard
         shell: bash
         run: |
-          mapfile -t all_specs < <(find spec -type f -name '*_spec.rb' | sort)
+          mapfile -t runnable_specs < .testoptimization/runner/test-files.txt
           assigned_specs=()
 
-          for spec_index in "${!all_specs[@]}"; do
+          for spec_index in "${!runnable_specs[@]}"; do
             if (( spec_index % 30 == ${{ matrix.ci_node_index }} )); then
-              assigned_specs+=("${all_specs[$spec_index]}")
+              assigned_specs+=("${runnable_specs[$spec_index]}")
             fi
           done
 
-          echo "Runner ${{ matrix.ci_node_index }} received ${#assigned_specs[@]} of ${#all_specs[@]} spec files"
+          echo "Runner ${{ matrix.ci_node_index }} received ${#assigned_specs[@]} of ${#runnable_specs[@]} TIA-runnable spec files"
+
+          if (( ${#assigned_specs[@]} == 0 )); then
+            echo "No runnable spec files assigned to this static shard"
+            exit 0
+          fi
+
           bundle exec rspec "${assigned_specs[@]}"
