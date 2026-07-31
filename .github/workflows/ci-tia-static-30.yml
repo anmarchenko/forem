@@ -35,6 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       E2E: true
+      DD_TEST_OPTIMIZATION_RUNNER_RUNTIME_TAGS: '{"os.version":"6.12.80"}'
 
     steps:
       - uses: actions/checkout@v4
@@ -108,6 +109,7 @@ jobs:
     timeout-minutes: 20
     env:
       DD_TEST_SESSION_NAME: tia-static-runner-${{ matrix.ci_node_index }}-of-30
+      DD_TEST_OPTIMIZATION_RUNTIME_TAGS: '{"os.version":"6.12.80"}'
 
     services:
       postgres:
