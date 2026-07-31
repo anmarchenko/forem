@@ -1,4 +1,5 @@
 name: TIA only (30 static runners)
+run-name: TIA only (30 static runners)
 
 on:
   push:

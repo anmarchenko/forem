@@ -1,4 +1,5 @@
 name: TIA + Test Parallelization (max 30 runners)
+run-name: TIA + Test Parallelization (up to 30 runners)
 
 on:
   push:
