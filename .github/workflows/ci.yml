@@ -1,4 +1,4 @@
-name: CI
+name: TIA + Test Parallelization (max 30 runners)
 
 on:
   push:
@@ -22,9 +22,8 @@ env:
   DD_TEST_OPTIMIZATION_RUNNER_PLATFORM: ruby
   DD_TEST_OPTIMIZATION_RUNNER_FRAMEWORK: rspec
   DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM: 1
-  DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
+  DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 30
   DD_TEST_OPTIMIZATION_RUNNER_TEST_DISCOVERY_CACHE: .ddtest-cache/tests-discovery.json
-  DD_TEST_OPTIMIZATION_RUNNER_TESTS_EXCLUDE_PATTERN: 'spec/ddtest/excluded/**/*_spec.rb'
   DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: suite
   DD_CIVISIBILITY_EARLY_FLAKE_DETECTION_ENABLED: 'false'
 
@@ -91,13 +90,6 @@ jobs:
       - id: dd_plan
         name: Setup Datadog Test Runner
         run: bin/ddtest plan
-      - name: Verify DDTest exclude pattern
-        run: |
-          test -s .testoptimization/runner/test-files.txt
-          if grep -Fq "spec/ddtest/excluded/exclude_pattern_canary_spec.rb" .testoptimization/runner/test-files.txt .testoptimization/runner/tests-split/runner-*; then
-            echo "DDTest exclude pattern did not filter the canary spec" >&2
-            exit 1
-          fi
       - id: stage_ddtest_discovery_cache
         name: Stage latest DDTest discovery cache
         if: always()
@@ -124,12 +116,14 @@ jobs:
           include-hidden-files: true
 
   rspec:
+    name: RSpec runner ${{ matrix.ci_node_index }} of ${{ matrix.ci_node_total }}
     runs-on: ubuntu-latest
     needs: [build]
     timeout-minutes: 20
     env:
       DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}};DATABASE_NAME_TEST=Forem_test{{nodeIndex}}
       DD_TEST_OPTIMIZATION_RUNTIME_TAGS: '{"os.version":"6.12.80"}'
+      DD_TEST_SESSION_NAME: tia-test-parallelization-${{ matrix.ci_node_index }}-of-${{ matrix.ci_node_total }}
 
     services:
       postgres:

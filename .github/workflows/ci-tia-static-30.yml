@@ -1,0 +1,154 @@
+name: TIA only (30 static runners)
+
+on:
+  push:
+    branches:
+      - '**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  COVERAGE: true
+  RAILS_ENV: test
+  NODE_ENV: test
+  DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/Forem_test
+  DATABASE_NAME_TEST: Forem_test
+  POSTGRES_PASSWORD: postgres
+  YARN_ENABLE_HARDENED_MODE: 0
+  DD_TRACE_DEBUG: 0
+  DD_ENV: ci
+  DD_SERVICE: forem
+  DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: suite
+  DD_CIVISIBILITY_EARLY_FLAKE_DETECTION_ENABLED: 'false'
+
+jobs:
+  build:
+    name: Prepare shared assets
+    runs-on: ubuntu-latest
+    env:
+      E2E: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Cache pre-compiled assets
+        uses: actions/cache@v4
+        id: assetscache
+        with:
+          path: public/assets
+          key: ${{ runner.os }}-compiled-assets-v3-${{ hashFiles('app/assets/**', 'app/javascript/**', '**/package.json', '**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-compiled-assets-v3-
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+        if: steps.assetscache.outputs.cache-hit != 'true'
+      - run: yarn install --immutable
+        if: steps.assetscache.outputs.cache-hit != 'true'
+      - run: bundle exec rails assets:precompile
+        if: steps.assetscache.outputs.cache-hit != 'true'
+
+  rspec:
+    name: RSpec runner ${{ matrix.ci_node_index }} of 30
+    runs-on: ubuntu-latest
+    needs: [build]
+    timeout-minutes: 20
+    env:
+      DD_TEST_SESSION_NAME: tia-static-runner-${{ matrix.ci_node_index }}-of-30
+
+    services:
+      postgres:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ci_node_index:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 16
+          - 17
+          - 18
+          - 19
+          - 20
+          - 21
+          - 22
+          - 23
+          - 24
+          - 25
+          - 26
+          - 27
+          - 28
+          - 29
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - name: Restore compiled assets
+        uses: actions/cache/restore@v4
+        with:
+          fail-on-cache-miss: true
+          path: public/assets
+          key: ${{ runner.os }}-compiled-assets-v3-${{ hashFiles('app/assets/**', 'app/javascript/**', '**/package.json', '**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-compiled-assets-v3-
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - run: cp .env_sample .env
+      - name: Prepare test database
+        run: bundle exec rails db:test:prepare
+      - name: Configure Datadog Test Optimization
+        uses: datadog/test-visibility-github-action@v2
+        with:
+          languages: ruby
+          api_key: ${{ secrets.DD_API_KEY }}
+          site: datadoghq.eu
+      - name: Run static RSpec shard
+        shell: bash
+        run: |
+          mapfile -t all_specs < <(find spec -type f -name '*_spec.rb' | sort)
+          assigned_specs=()
+
+          for spec_index in "${!all_specs[@]}"; do
+            if (( spec_index % 30 == ${{ matrix.ci_node_index }} )); then
+              assigned_specs+=("${all_specs[$spec_index]}")
+            fi
+          done
+
+          echo "Runner ${{ matrix.ci_node_index }} received ${#assigned_specs[@]} of ${#all_specs[@]} spec files"
+          bundle exec rspec "${assigned_specs[@]}"
