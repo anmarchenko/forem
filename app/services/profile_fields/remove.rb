@@ -1,5 +1,6 @@
 # This service removes a profile field and ensures that the corresponding store
 # accessor also gets removed immediately.
+# Test optimization probe: no behavior change.
 module ProfileFields
   class Remove
     def self.call(id)
