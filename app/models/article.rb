@@ -1,4 +1,5 @@
 class Article < ApplicationRecord
+  # Test optimization probe: no behavior change.
   include CloudinaryHelper
   include ActionView::Helpers
   include Reactable
