@@ -5,6 +5,7 @@ git_source(:github) { |name| "https://github.com/#{name}.git" }
 source "https://rubygems.org"
 ruby File.read(File.join(File.dirname(__FILE__), ".ruby-version")).strip
 
+gem "datadog-ci", github: "DataDog/datadog-ci-rb", branch: "main"
 gem "openssl", ">= 3.3.1"
 
 group :production do

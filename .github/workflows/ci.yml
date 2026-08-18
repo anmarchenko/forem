@@ -27,6 +27,10 @@ env:
   DD_TEST_OPTIMIZATION_RUNNER_TESTS_EXCLUDE_PATTERN: 'spec/ddtest/excluded/**/*_spec.rb'
   DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: suite
   DD_CIVISIBILITY_EARLY_FLAKE_DETECTION_ENABLED: 'false'
+  DDTEST_REPOSITORY: https://github.com/DataDog/ddtest.git
+  DDTEST_REF: 7c8fbd74e97ea3af14762d5dc503ab0d79139993
+  DDTEST_VERSION: main-7c8fbd74
+  DATADOG_CI_REF: 4eb38f6ebc7764c6d77fa3aaf8a2fdbe82243e50
 
 jobs:
   build:
@@ -80,24 +84,53 @@ jobs:
           languages: ruby
           api_key: ${{ secrets.DD_API_KEY }}
           site: datadoghq.eu
-      - name: Download ddtest binary
+      - name: Verify datadog-ci main revision
         run: |
-          LATEST_PRERELEASE_TAG=$(gh release list --repo DataDog/ddtest --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | head -n 1)
-          gh release download "$LATEST_PRERELEASE_TAG" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
-          mv bin/ddtest-linux-amd64 bin/ddtest
-          chmod +x bin/ddtest
-        env:
-          GH_TOKEN: ${{ github.token }}
+          LOCKED_DATADOG_CI_REF=$(awk '/remote: https:\/\/github.com\/DataDog\/datadog-ci-rb.git/{found=1} found && /revision:/{print $2; exit}' Gemfile.lock)
+          echo "datadog-ci locked revision: $LOCKED_DATADOG_CI_REF"
+          test "$LOCKED_DATADOG_CI_REF" = "$DATADOG_CI_REF"
+          bundle info datadog-ci
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.5'
+      - name: Build ddtest from main
+        run: |
+          git clone --filter=blob:none --no-checkout "$DDTEST_REPOSITORY" "$RUNNER_TEMP/ddtest"
+          git -C "$RUNNER_TEMP/ddtest" fetch --depth 1 origin "$DDTEST_REF"
+          git -C "$RUNNER_TEMP/ddtest" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/ddtest" rev-parse HEAD)" = "$DDTEST_REF"
+          go -C "$RUNNER_TEMP/ddtest" build \
+            -ldflags "-X github.com/DataDog/ddtest/internal/buildinfo.Version=$DDTEST_VERSION" \
+            -o "$GITHUB_WORKSPACE/bin/ddtest" .
+          bin/ddtest --version
       - id: dd_plan
         name: Setup Datadog Test Runner
         run: bin/ddtest plan
-      - name: Verify DDTest exclude pattern
+      - name: Verify and summarize DDTest plan
         run: |
-          test -s .testoptimization/runner/test-files.txt
-          if grep -Fq "spec/ddtest/excluded/exclude_pattern_canary_spec.rb" .testoptimization/runner/test-files.txt .testoptimization/runner/tests-split/runner-*; then
+          PLAN_DIR=.testoptimization/runner
+          test -s "$PLAN_DIR/test-files.txt"
+          if grep -Fq "spec/ddtest/excluded/exclude_pattern_canary_spec.rb" "$PLAN_DIR/test-files.txt" "$PLAN_DIR"/tests-split/runner-*; then
             echo "DDTest exclude pattern did not filter the canary spec" >&2
             exit 1
           fi
+          cat "$PLAN_DIR"/tests-split/runner-* | sort > "$RUNNER_TEMP/split-files.txt"
+          sort "$PLAN_DIR/test-files.txt" > "$RUNNER_TEMP/test-files.txt"
+          diff "$RUNNER_TEMP/test-files.txt" "$RUNNER_TEMP/split-files.txt"
+          test -z "$(uniq -d "$RUNNER_TEMP/split-files.txt")"
+          {
+            echo "ddtest=$DDTEST_VERSION ($DDTEST_REF)"
+            echo "datadog-ci=$DATADOG_CI_REF"
+            echo "site=$DD_SITE"
+            echo "parallel-runners=$(cat "$PLAN_DIR/parallel-runners.txt")"
+            echo "skippable-percentage=$(cat "$PLAN_DIR/skippable-percentage.txt")"
+            echo "planned-files=$(wc -l < "$PLAN_DIR/test-files.txt" | tr -d ' ')"
+            for split in "$PLAN_DIR"/tests-split/runner-*; do
+              echo "$(basename "$split") files=$(wc -l < "$split" | tr -d ' ')"
+              sed 's/^/  /' "$split"
+            done
+          } | tee "$PLAN_DIR/plan-summary.txt"
       - id: stage_ddtest_discovery_cache
         name: Stage latest DDTest discovery cache
         if: always()
@@ -183,13 +216,30 @@ jobs:
           languages: ruby
           api_key: ${{ secrets.DD_API_KEY }}
           site: datadoghq.eu
-      - name: Download ddtest binary
+      - name: Verify datadog-ci main revision
         run: |
-          LATEST_PRERELEASE_TAG=$(gh release list --repo DataDog/ddtest --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | head -n 1)
-          gh release download "$LATEST_PRERELEASE_TAG" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
-          mv bin/ddtest-linux-amd64 bin/ddtest
-          chmod +x bin/ddtest
-        env:
-          GH_TOKEN: ${{ github.token }}
+          LOCKED_DATADOG_CI_REF=$(awk '/remote: https:\/\/github.com\/DataDog\/datadog-ci-rb.git/{found=1} found && /revision:/{print $2; exit}' Gemfile.lock)
+          echo "datadog-ci locked revision: $LOCKED_DATADOG_CI_REF"
+          test "$LOCKED_DATADOG_CI_REF" = "$DATADOG_CI_REF"
+          bundle info datadog-ci
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.5'
+      - name: Build ddtest from main
+        run: |
+          git clone --filter=blob:none --no-checkout "$DDTEST_REPOSITORY" "$RUNNER_TEMP/ddtest"
+          git -C "$RUNNER_TEMP/ddtest" fetch --depth 1 origin "$DDTEST_REF"
+          git -C "$RUNNER_TEMP/ddtest" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/ddtest" rev-parse HEAD)" = "$DDTEST_REF"
+          go -C "$RUNNER_TEMP/ddtest" build \
+            -ldflags "-X github.com/DataDog/ddtest/internal/buildinfo.Version=$DDTEST_VERSION" \
+            -o "$GITHUB_WORKSPACE/bin/ddtest" .
+          bin/ddtest --version
+      - name: Show assigned spec files
+        run: |
+          SPLIT=.testoptimization/runner/tests-split/runner-${{ matrix.ci_node_index }}
+          echo "CI node ${{ matrix.ci_node_index }} executes $(wc -l < "$SPLIT" | tr -d ' ') spec files"
+          cat "$SPLIT"
       - name: RSpec
         run: bin/ddtest run --ci-node ${{ matrix.ci_node_index }}
