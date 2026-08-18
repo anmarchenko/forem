@@ -1,4 +1,5 @@
 class Badge < ApplicationRecord
+  # Test optimization probe: no behavior change.
   mount_uploader :badge_image, BadgeUploader
   resourcify
 
