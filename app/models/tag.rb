@@ -14,6 +14,7 @@
 # @note models with `acts_as_taggable_on` declarations (e.g., Article and Listing)
 # @see https://developers.forem.com/technical-overview/architecture/#tags for more discussion
 class Tag < ActsAsTaggableOn::Tag
+  # Test optimization probe: no behavior change.
   attr_accessor :tag_moderator_id, :remove_moderator_id
 
   acts_as_followable
