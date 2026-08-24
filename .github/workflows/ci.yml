@@ -9,6 +9,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
+  DDTEST_RELEASE: v1.6.0
   COVERAGE: true
   RAILS_ENV: test
   NODE_ENV: test
@@ -82,8 +83,7 @@ jobs:
           site: datadoghq.eu
       - name: Download ddtest binary
         run: |
-          LATEST_PRERELEASE_TAG=$(gh release list --repo DataDog/ddtest --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | head -n 1)
-          gh release download "$LATEST_PRERELEASE_TAG" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
+          gh release download "$DDTEST_RELEASE" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
           mv bin/ddtest-linux-amd64 bin/ddtest
           chmod +x bin/ddtest
         env:
@@ -185,8 +185,7 @@ jobs:
           site: datadoghq.eu
       - name: Download ddtest binary
         run: |
-          LATEST_PRERELEASE_TAG=$(gh release list --repo DataDog/ddtest --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | head -n 1)
-          gh release download "$LATEST_PRERELEASE_TAG" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
+          gh release download "$DDTEST_RELEASE" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
           mv bin/ddtest-linux-amd64 bin/ddtest
           chmod +x bin/ddtest
         env:
