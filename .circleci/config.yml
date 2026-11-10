@@ -20,7 +20,10 @@ jobs:
         command: bash .verification/bootstrap.sh
     - run:
         name: Plan tests
-        command: 'bin/ddtest plan --platform python --framework pytest
+        command: 'if [ "$(cat .verification/mode)" = "empty-one" ]; then export DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM=1
+          DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM=1; fi
+
+          bin/ddtest plan --platform python --framework pytest
 
           cat .testoptimization/circleci/parameters.json'
         environment:

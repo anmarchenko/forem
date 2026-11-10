@@ -42,7 +42,10 @@ jobs:
         site: datadoghq.com
     - id: dd_plan
       name: Plan test execution
-      run: 'if [ "$(cat .verification/mode)" = "output-failure" ]; then mkdir -p .verification/blocked-output;
+      run: 'if [ "$(cat .verification/mode)" = "empty-one" ]; then export DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM=1
+        DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM=1; fi
+
+        if [ "$(cat .verification/mode)" = "output-failure" ]; then mkdir -p .verification/blocked-output;
         export GITHUB_OUTPUT="$PWD/.verification/blocked-output"; fi
 
         bin/ddtest plan
