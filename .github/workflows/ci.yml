@@ -1,195 +1,99 @@
-name: CI
-
-on:
-  push:
-    branches:
-      - '**'
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-test-runner
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
-
+name: Verify documented Python empty-plan gate
 env:
-  COVERAGE: true
-  RAILS_ENV: test
-  NODE_ENV: test
-  DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/Forem_test
-  DATABASE_NAME_TEST: Forem_test
-  POSTGRES_PASSWORD: postgres
-  YARN_ENABLE_HARDENED_MODE: 0
-  DD_TRACE_DEBUG: 0
-  DD_ENV: ci
-  DD_SERVICE: forem
-  DD_TEST_OPTIMIZATION_RUNNER_PLATFORM: ruby
-  DD_TEST_OPTIMIZATION_RUNNER_FRAMEWORK: rspec
-  DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM: 1
-  DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
-  DD_TEST_OPTIMIZATION_RUNNER_TEST_DISCOVERY_CACHE: .ddtest-cache/tests-discovery.json
-  DD_TEST_OPTIMIZATION_RUNNER_TESTS_EXCLUDE_PATTERN: 'spec/ddtest/excluded/**/*_spec.rb'
-  DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: suite
-  DD_CIVISIBILITY_EARLY_FLAKE_DETECTION_ENABLED: 'false'
-
+  DD_TEST_OPTIMIZATION_RUNNER_PLATFORM: python
+  DD_TEST_OPTIMIZATION_RUNNER_FRAMEWORK: pytest
+  DD_TEST_OPTIMIZATION_RUNNER_MIN_PARALLELISM: '2'
+  DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: '3'
+  DD_API_KEY: dummy
+  DD_CIVISIBILITY_AGENTLESS_ENABLED: 'true'
+  DD_CIVISIBILITY_AGENTLESS_URL: http://127.0.0.1:5267
+  DD_TELEMETRY_AGENTLESS_URL: http://127.0.0.1:5267
+  DD_INSTRUMENTATION_TELEMETRY_URL: http://127.0.0.1:5267
+  DD_TEST_OPTIMIZATION_RUNNER_FORCE_FULL_TEST_DISCOVERY: 'true'
+  DD_TEST_OPTIMIZATION_RUNNER_STRICT_DISCOVERY: 'true'
+  DD_TEST_OPTIMIZATION_RUNNER_TESTS_LOCATION: tests/test_*.py
+  DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: test
+  DD_SERVICE: ddtest-empty-plan-verification
 jobs:
-  build:
+  dd_plan:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.dd_plan.outputs.matrix }}
-    env:
-      E2E: true
-      DD_TEST_OPTIMIZATION_RUNNER_RUNTIME_TAGS: '{"os.version":"6.12.80"}'
-
+      has_tests: ${{ steps.dd_plan.outputs.has_tests }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          # DDTest discovery cache validation needs the cache source commit locally.
-          fetch-depth: 3
-      - name: Restore DDTest discovery cache
-        id: ddtest_discovery_cache
-        uses: actions/cache/restore@v4
-        with:
-          path: .ddtest-cache/tests-discovery.json
-          key: ddtest-discovery-${{ runner.os }}-${{ github.ref_name }}-${{ github.sha }}
-          restore-keys: |
-            ddtest-discovery-${{ runner.os }}-${{ github.ref_name }}-
-            ddtest-discovery-${{ runner.os }}-
-            ddtest-discovery-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-      - name: Cache pre-compiled assets
-        uses: actions/cache@v4
-        id: assetscache
-        with:
-          path: |
-            public/assets
-          key: ${{ runner.os }}-compiled-assets-v3-${{ hashFiles( 'app/assets/**', 'app/javascript/**', '**/package.json', '**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-compiled-assets-v3-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: yarn
-        if: steps.assetscache.outputs.cache-hit != 'true'
-      - run: yarn install --immutable
-        if: steps.assetscache.outputs.cache-hit != 'true'
-      - run: bundle exec rails assets:precompile
-        if: steps.assetscache.outputs.cache-hit != 'true'
-      - run: cp .env_sample .env
-      - name: Configure Datadog Test Optimization
-        uses: datadog/test-visibility-github-action@v2
-        with:
-          languages: ruby
-          api_key: ${{ secrets.DD_API_KEY }}
-          site: datadoghq.eu
-      - name: Download ddtest binary
-        run: |
-          LATEST_PRERELEASE_TAG=$(gh release list --repo DataDog/ddtest --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | head -n 1)
-          gh release download "$LATEST_PRERELEASE_TAG" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
-          mv bin/ddtest-linux-amd64 bin/ddtest
-          chmod +x bin/ddtest
-        env:
-          GH_TOKEN: ${{ github.token }}
-      - id: dd_plan
-        name: Setup Datadog Test Runner
-        run: bin/ddtest plan
-      - name: Verify DDTest exclude pattern
-        run: |
-          test -s .testoptimization/runner/test-files.txt
-          if grep -Fq "spec/ddtest/excluded/exclude_pattern_canary_spec.rb" .testoptimization/runner/test-files.txt .testoptimization/runner/tests-split/runner-*; then
-            echo "DDTest exclude pattern did not filter the canary spec" >&2
-            exit 1
-          fi
-      - id: stage_ddtest_discovery_cache
-        name: Stage latest DDTest discovery cache
-        if: always()
-        run: |
-          if [ -f .testoptimization/tests-discovery/tests.json ]; then
-            mkdir -p .ddtest-cache
-            cp .testoptimization/tests-discovery/tests.json .ddtest-cache/tests-discovery.json
-            echo "cache-ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "cache-ready=false" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Save latest DDTest discovery cache
-        if: always() && steps.stage_ddtest_discovery_cache.outputs.cache-ready == 'true' && steps.ddtest_discovery_cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: .ddtest-cache/tests-discovery.json
-          key: ${{ steps.ddtest_discovery_cache.outputs.cache-primary-key }}
-      - name: Upload DD artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dd-artifacts
-          path: '.testoptimization'
-          if-no-files-found: warn
-          include-hidden-files: true
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: 1.27.3
+    - name: Build pinned PR and start recorded Mockdog responses
+      run: bash .verification/bootstrap.sh
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+    - name: Install Python dependencies
+      run: python -m pip install -r requirements.txt "ddtrace>=4.11.0" pytest
+    - name: Configure Datadog Test Optimization
+      uses: datadog/test-visibility-github-action@v2
+      with:
+        languages: python
+        api_key: dummy
+        site: datadoghq.com
+    - id: dd_plan
+      name: Plan test execution
+      run: 'if [ "$(cat .verification/mode)" = "output-failure" ]; then mkdir -p .verification/blocked-output;
+        export GITHUB_OUTPUT="$PWD/.verification/blocked-output"; fi
 
-  rspec:
+        bin/ddtest plan
+
+        cat .testoptimization/runner/parallel-runners.txt
+
+        cat .testoptimization/github/config'
+    - uses: actions/upload-artifact@v4
+      with:
+        name: dd-artifacts
+        path: .testoptimization
+        include-hidden-files: true
+    - name: Inspect runnable-work output
+      run: echo "has_tests=${{ steps.dd_plan.outputs.has_tests }}"
+  dd_test:
     runs-on: ubuntu-latest
-    needs: [build]
-    timeout-minutes: 20
-    env:
-      DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}};DATABASE_NAME_TEST=Forem_test{{nodeIndex}}
-      DD_TEST_OPTIMIZATION_RUNTIME_TAGS: '{"os.version":"6.12.80"}'
-
-    services:
-      postgres:
-        image: postgres:13-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-      redis:
-        image: redis
-        ports:
-          - 6379:6379
-
+    needs:
+    - dd_plan
+    if: ${{ needs.dd_plan.outputs.has_tests == 'true' }}
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.build.outputs.matrix) }}
-
+      matrix: ${{ fromJson(needs.dd_plan.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Download DD artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dd-artifacts
-          path: '.testoptimization'
-      - name: Restore compiled assets
-        uses: actions/cache/restore@v4
-        with:
-          fail-on-cache-miss: true
-          path: |
-            public/assets
-          key: ${{ runner.os }}-compiled-assets-v3-${{ hashFiles('app/assets/**', 'app/javascript/**', '**/package.json', '**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-compiled-assets-v3-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: yarn
-      - name: setup ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-      - run: cp .env_sample .env
-      - name: Prepare test database for this CI node
-        run: |
-          DATABASE_NAME="Forem_test${{ matrix.ci_node_index }}"
-          DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/${DATABASE_NAME}" \
-            DATABASE_NAME_TEST="${DATABASE_NAME}" \
-            bundle exec rails db:test:prepare
-      - name: Configure Datadog Test Optimization
-        uses: datadog/test-visibility-github-action@v2
-        with:
-          languages: ruby
-          api_key: ${{ secrets.DD_API_KEY }}
-          site: datadoghq.eu
-      - name: Download ddtest binary
-        run: |
-          LATEST_PRERELEASE_TAG=$(gh release list --repo DataDog/ddtest --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | head -n 1)
-          gh release download "$LATEST_PRERELEASE_TAG" --repo DataDog/ddtest --pattern "ddtest-linux-amd64" --dir bin
-          mv bin/ddtest-linux-amd64 bin/ddtest
-          chmod +x bin/ddtest
-        env:
-          GH_TOKEN: ${{ github.token }}
-      - name: RSpec
-        run: bin/ddtest run --ci-node ${{ matrix.ci_node_index }}
+    - name: Worker allocation marker
+      run: echo WORKER_ALLOCATED
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: 1.27.3
+    - name: Build pinned PR and start recorded Mockdog responses
+      run: bash .verification/bootstrap.sh
+    - uses: actions/download-artifact@v4
+      with:
+        name: dd-artifacts
+        path: .testoptimization
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+    - name: Install Python dependencies
+      run: python -m pip install -r requirements.txt "ddtrace>=4.11.0" pytest
+    - name: Configure Datadog Test Optimization
+      uses: datadog/test-visibility-github-action@v2
+      with:
+        languages: python
+        api_key: dummy
+        site: datadoghq.com
+    - name: Run tests
+      run: bin/ddtest run --ci-node ${{ matrix.ci_node_index }}
+'on':
+  push:
+    branches:
+    - anmarchenko/verify-ddtest-327

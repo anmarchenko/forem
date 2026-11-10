@@ -1,75 +1,54 @@
 version: '2.1'
-
 parameters:
   parallelism:
     type: integer
     default: 1
-
+  has_tests:
+    type: boolean
+    default: false
 orbs:
-  node: circleci/node@7
-  ruby: circleci/ruby@2
   test-optimization-circleci-orb: datadog/test-optimization-circleci-orb@1
-
 jobs:
   test:
     parallelism: << pipeline.parameters.parallelism >>
     docker:
-      - image: cimg/ruby:3.3.0-node
-      - image: cimg/postgres:13.13
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-      - image: cimg/redis:7.0
-    environment:
-      RAILS_ENV: test
-      NODE_ENV: test
-      DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/Forem_test
-      DATABASE_NAME_TEST: Forem_test
-      REDIS_URL: redis://localhost:6379
-      BUNDLE_PATH: vendor/bundle
-      BUNDLE_JOBS: 4
-      DD_ENV: ci
-      DD_SERVICE: forem-circleci
-      DD_TEST_OPTIMIZATION_RUNNER_MAX_PARALLELISM: 8
-      DD_TEST_OPTIMIZATION_RUNNER_CI_NODE_WORKERS: 1
-      DD_TEST_OPTIMIZATION_RUNNER_WORKER_ENV: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/Forem_test{{nodeIndex}};DATABASE_NAME_TEST=Forem_test{{nodeIndex}}
-      DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: suite
+    - image: cimg/python:3.12
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - ddtest-plan-{{ .Revision }}
-      - ruby/install-deps
-      - node/install-packages:
-          pkg-manager: yarn
-      - run:
-          name: Copy .env
-          command: cp .env_sample .env
-      - run:
-          name: Prepare test database for this CI node
-          command: |
-            NODE_INDEX=${CIRCLE_NODE_INDEX:-0}
-            DATABASE_NAME="Forem_test${NODE_INDEX}"
-            DATABASE_URL_TEST="postgres://postgres:postgres@localhost:5432/${DATABASE_NAME}" \
-              DATABASE_NAME_TEST="${DATABASE_NAME}" \
-              bundle exec rails db:test:prepare
-      - test-optimization-circleci-orb/autoinstrument:
-          languages: ruby
-          site: datadoghq.eu
-      - run:
-          name: Precompile assets
-          command: |
-            bundle exec rails assets:precompile
-      - run:
-          name: Run tests with ddtest
-          command: |
-            NODE_INDEX=${CIRCLE_NODE_INDEX:-0}
-            export DD_TEST_SESSION_NAME="forem-ci-${NODE_INDEX}"
-            export DD_TEST_OPTIMIZATION_RUNNER_CI_NODE="${NODE_INDEX}"
-            echo "Running ddtest node ${NODE_INDEX}"
-            ./bin/ddtest run --platform ruby --framework rspec
+    - run: echo WORKER_ALLOCATED
+    - checkout
+    - run:
+        name: Start recorded Mockdog responses
+        command: nohup python3 .verification/backend.py > /tmp/ddtest-verification-backend.log
+          2>&1 < /dev/null &
+    - restore_cache:
+        keys:
+        - ddtest-plan-{{ .Revision }}
+    - run:
+        name: Install Python dependencies
+        command: python -m pip install -r requirements.txt "ddtrace>=4.11.0" pytest
+    - test-optimization-circleci-orb/autoinstrument:
+        languages: python
+        site: datadoghq.com
+    - run:
+        name: Run tests
+        command: 'export DD_TEST_SESSION_NAME="python-tests-${CIRCLE_NODE_INDEX:-0}"
 
+          bin/ddtest run --platform python --framework pytest --ci-node "${CIRCLE_NODE_INDEX:-0}"
+
+          '
+    environment:
+      DD_API_KEY: dummy
+      DD_CIVISIBILITY_AGENTLESS_ENABLED: 'true'
+      DD_CIVISIBILITY_AGENTLESS_URL: http://127.0.0.1:5267
+      DD_TELEMETRY_AGENTLESS_URL: http://127.0.0.1:5267
+      DD_INSTRUMENTATION_TELEMETRY_URL: http://127.0.0.1:5267
+      DD_TEST_OPTIMIZATION_RUNNER_FORCE_FULL_TEST_DISCOVERY: 'true'
+      DD_TEST_OPTIMIZATION_RUNNER_STRICT_DISCOVERY: 'true'
+      DD_TEST_OPTIMIZATION_RUNNER_TESTS_LOCATION: tests/test_*.py
+      DD_TESTOPTIMIZATION_TIA_TEST_SKIPPING_MODE: test
+      DD_SERVICE: ddtest-empty-plan-verification
 workflows:
   test:
+    when: << pipeline.parameters.has_tests >>
     jobs:
-      - test
+    - test

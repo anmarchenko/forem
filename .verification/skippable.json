@@ -1,0 +1,1 @@
+{"data":[{"id":"skippable-test_first.py-test_first","type":"test","attributes":{"suite":"test_first.py","name":"test_first","configurations":{"test.bundle":"tests"}}},{"id":"skippable-test_second.py-test_second","type":"test","attributes":{"suite":"test_second.py","name":"test_second","configurations":{"test.bundle":"tests"}}}],"meta":{"correlation_id":"mockdog-correlation-id"}}
