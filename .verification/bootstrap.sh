@@ -17,6 +17,7 @@ git -C /tmp/ddtest-pr-source checkout -q FETCH_HEAD
 mkdir -p bin
 (cd /tmp/ddtest-pr-source && go build -ldflags='-s -w' -o "$OLDPWD/bin/ddtest" .)
 git -C /tmp/ddtest-pr-source rev-parse HEAD
+if [ "$mode" = "empty-partial-discovery" ]; then printf 'def broken(:\n' > tests/test_first.py; fi
 if [ "$mode" = "discovery-failure" ]; then printf 'def broken(:\n' > tests/test_first.py; printf 'def broken(:\n' > tests/test_second.py; fi
 if [ "$mode" = "output-failure" ]; then
   if [ -n "${CIRCLECI:-}" ]; then mkdir -p .testoptimization/circleci/parameters.json; else export GITHUB_OUTPUT="$PWD/.verification/blocked-output"; mkdir -p "$GITHUB_OUTPUT"; fi
